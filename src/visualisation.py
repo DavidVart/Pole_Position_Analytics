@@ -201,11 +201,12 @@ def plot_lap_progression(
             L.lap_time_ms
         FROM LapTimes L
         JOIN Sessions S ON L.session_id = S.session_id
+        JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN Races R ON S.race_id = R.race_id
         JOIN Drivers D ON L.driver_id = D.driver_id
         WHERE R.season = ? 
           AND R.round = ? 
-          AND S.session_type = 'R'
+          AND ST.session_type_code = 'R'
           AND D.code IN ({placeholders})
           AND L.lap_time_ms IS NOT NULL
         ORDER BY L.lap_number

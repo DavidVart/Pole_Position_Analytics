@@ -15,12 +15,16 @@ import fastf1
 import pandas as pd
 import requests
 
+from clean_data import clean_float, clean_integer, clean_string
 from db_utils import (
     create_tables,
     get_connection,
     get_driver_by_code,
+    get_or_create_circuit,
+    get_or_create_compound,
     get_or_create_driver,
     get_or_create_race,
+    get_or_create_session_type,
     get_progress,
     update_progress,
 )
@@ -196,13 +200,15 @@ def extract_lap_data(session) -> List[Dict]:
             compound = lap.get("Compound")
             if pd.isna(compound):
                 compound = None
+            else:
+                compound = clean_string(compound)
 
             fresh_tyre = 1 if lap.get("FreshTyre") is True else 0
 
             lap_info = {
-                "driver_number": int(lap.get("DriverNumber")),
-                "driver_code": lap.get("Driver"),
-                "lap_number": int(lap.get("LapNumber", 0)),
+                "driver_number": clean_integer(lap.get("DriverNumber")),
+                "driver_code": clean_string(lap.get("Driver")),
+                "lap_number": clean_integer(lap.get("LapNumber")),
                 "lap_time_ms": lap_time_ms,
                 "sector1_ms": sector1_ms,
                 "sector2_ms": sector2_ms,
@@ -269,28 +275,36 @@ def get_or_create_session(
     """
     cur = conn.cursor()
 
+    # Get or create session type
+    session_type_id = get_or_create_session_type(conn, session_type)
+
     # Try to find existing session
     cur.execute(
-        "SELECT session_id FROM Sessions WHERE race_id = ? AND session_type = ?",
-        (race_id, session_type),
+        "SELECT session_id FROM Sessions WHERE race_id = ? AND session_type_id = ?",
+        (race_id, session_type_id),
     )
     row = cur.fetchone()
 
     if row:
         return row[0]
 
+    # Clean weather data
+    track_temp = clean_float(weather_data.get("track_temp"))
+    humidity = clean_float(weather_data.get("humidity"))
+    wind_speed = clean_float(weather_data.get("wind_speed"))
+
     # Create new session
     cur.execute(
         """
-        INSERT INTO Sessions (race_id, session_type, track_temp, humidity, wind_speed)
+        INSERT INTO Sessions (race_id, session_type_id, track_temp, humidity, wind_speed)
         VALUES (?, ?, ?, ?, ?)
     """,
         (
             race_id,
-            session_type,
-            weather_data.get("track_temp"),
-            weather_data.get("humidity"),
-            weather_data.get("wind_speed"),
+            session_type_id,
+            track_temp,
+            humidity,
+            wind_speed,
         ),
     )
 
@@ -362,6 +376,9 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
         if race_row:
             race_id = race_row[0]
         else:
+            # Get or create circuit
+            circuit_id = get_or_create_circuit(conn, event_name)
+
             # Create race record if it doesn't exist
             race_id = get_or_create_race(
                 conn,
@@ -369,7 +386,7 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
                 round_num=0,  # Will be updated later if needed
                 race_name=race_full_name,
                 date=None,
-                circuit_name=event_name,
+                circuit_id=circuit_id,
             )
 
         # Process each session type
@@ -413,13 +430,16 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
                         nationality=None,
                     )
 
+                # Get or create compound
+                compound_id = get_or_create_compound(conn, lap["compound"])
+
                 # Insert lap time
                 try:
                     cur.execute(
                         """
                         INSERT INTO LapTimes 
                         (session_id, driver_id, lap_number, lap_time_ms, 
-                         sector1_ms, sector2_ms, sector3_ms, compound, fresh_tyre)
+                         sector1_ms, sector2_ms, sector3_ms, compound_id, fresh_tyre)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                         (
@@ -430,7 +450,7 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
                             lap["sector1_ms"],
                             lap["sector2_ms"],
                             lap["sector3_ms"],
-                            lap["compound"],
+                            compound_id,
                             lap["fresh_tyre"],
                         ),
                     )

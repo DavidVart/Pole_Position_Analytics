@@ -11,12 +11,15 @@ from typing import Dict, List
 
 import requests
 
+from clean_data import clean_date, clean_float, clean_integer, clean_string
 from db_utils import (
     create_tables,
     get_connection,
+    get_or_create_circuit,
     get_or_create_constructor,
     get_or_create_driver,
     get_or_create_race,
+    get_or_create_status,
     get_progress,
     update_progress,
 )
@@ -51,11 +54,13 @@ def fetch_race_list(seasons: List[int]) -> List[Dict]:
 
             for race in races:
                 race_info = {
-                    "season": int(race.get("season")),
-                    "round": int(race.get("round")),
-                    "race_name": race.get("raceName"),
-                    "date": race.get("date"),
-                    "circuit_name": race.get("Circuit", {}).get("circuitName"),
+                    "season": clean_integer(race.get("season")),
+                    "round": clean_integer(race.get("round")),
+                    "race_name": clean_string(race.get("raceName")),
+                    "date": race.get("date"),  # Will be cleaned later when inserting
+                    "circuit_name": clean_string(
+                        race.get("Circuit", {}).get("circuitName")
+                    ),
                 }
                 all_races.append(race_info)
 
@@ -99,22 +104,20 @@ def fetch_race_results(season: int, round_num: int) -> List[Dict]:
 
             result_info = {
                 # Driver info
-                "driver_id": driver.get("driverId"),
-                "driver_code": driver.get("code"),
-                "driver_forename": driver.get("givenName"),
-                "driver_surname": driver.get("familyName"),
-                "driver_nationality": driver.get("nationality"),
+                "driver_id": clean_string(driver.get("driverId")),
+                "driver_code": clean_string(driver.get("code")),
+                "driver_forename": clean_string(driver.get("givenName")),
+                "driver_surname": clean_string(driver.get("familyName")),
+                "driver_nationality": clean_string(driver.get("nationality")),
                 # Constructor info
-                "constructor_id": constructor.get("constructorId"),
-                "constructor_name": constructor.get("name"),
-                "constructor_nationality": constructor.get("nationality"),
+                "constructor_id": clean_string(constructor.get("constructorId")),
+                "constructor_name": clean_string(constructor.get("name")),
+                "constructor_nationality": clean_string(constructor.get("nationality")),
                 # Result info
-                "grid": int(result.get("grid", 0)),
-                "position": int(result.get("position", 0))
-                if result.get("position")
-                else None,
-                "points": float(result.get("points", 0)),
-                "status": result.get("status"),
+                "grid": clean_integer(result.get("grid")),
+                "position": clean_integer(result.get("position")),
+                "points": clean_float(result.get("points")),
+                "status": clean_string(result.get("status")),
             }
             parsed_results.append(result_info)
 
@@ -170,14 +173,18 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
         if new_rows_inserted >= MAX_NEW_RESULTS_PER_RUN:
             break
 
+        # Clean and normalize data before insertion
+        cleaned_date = clean_date(race["date"])
+        circuit_id = get_or_create_circuit(conn, race["circuit_name"])
+
         # Get or create race record
         race_id = get_or_create_race(
             conn,
             season=season,
             round_num=round_num,
             race_name=race["race_name"],
-            date=race["date"],
-            circuit_name=race["circuit_name"],
+            date=cleaned_date,
+            circuit_id=circuit_id,
         )
 
         # Fetch results for this race
@@ -210,11 +217,14 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
                 nationality=result["constructor_nationality"],
             )
 
+            # Get or create status
+            status_id = get_or_create_status(conn, result["status"])
+
             # Insert result (INSERT OR IGNORE handles duplicates)
             cur.execute(
                 """
                 INSERT OR IGNORE INTO Results 
-                (race_id, driver_id, constructor_id, grid, position, points, status)
+                (race_id, driver_id, constructor_id, grid, position, points, status_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
                 (
@@ -224,7 +234,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
                     result["grid"],
                     result["position"],
                     result["points"],
-                    result["status"],
+                    status_id,
                 ),
             )
 

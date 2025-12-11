@@ -55,6 +55,7 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
             MAX(L.lap_time_ms) AS slowest_lap_ms
         FROM LapTimes L
         JOIN Sessions S ON L.session_id = S.session_id
+        JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN Races R ON S.race_id = R.race_id
         JOIN Drivers D ON L.driver_id = D.driver_id
         WHERE L.lap_time_ms IS NOT NULL
@@ -99,11 +100,12 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
             Res.position,
             (Res.grid - Res.position) AS positions_gained,
             Res.points,
-            Res.status
+            Stat.status_text AS status
         FROM Results Res
         JOIN Races R ON Res.race_id = R.race_id
         JOIN Drivers D ON Res.driver_id = D.driver_id
         JOIN Constructors C ON Res.constructor_id = C.constructor_id
+        LEFT JOIN Statuses Stat ON Res.status_id = Stat.status_id
         WHERE Res.grid > 0 AND Res.position IS NOT NULL
         ORDER BY R.season, R.round, Res.position
     """
@@ -128,15 +130,16 @@ def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     query = """
         SELECT
-            L.compound,
+            C.compound_name AS compound,
             AVG(L.lap_time_ms) AS avg_lap_time_ms,
             MIN(L.lap_time_ms) AS fastest_lap_ms,
             MAX(L.lap_time_ms) AS slowest_lap_ms,
             COUNT(*) AS lap_count,
             COUNT(DISTINCT L.driver_id) AS driver_count
         FROM LapTimes L
-        WHERE L.compound IS NOT NULL AND L.lap_time_ms IS NOT NULL
-        GROUP BY L.compound
+        JOIN Compounds C ON L.compound_id = C.compound_id
+        WHERE L.compound_id IS NOT NULL AND L.lap_time_ms IS NOT NULL
+        GROUP BY C.compound_id
         ORDER BY avg_lap_time_ms
     """
 
@@ -170,13 +173,14 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
             R.season,
             R.round,
             R.race_name,
-            S.session_type,
+            ST.session_type_code AS session_type,
             S.track_temp,
             S.humidity,
             S.wind_speed,
             AVG(L.lap_time_ms) AS avg_lap_time_ms,
             COUNT(*) AS lap_count
         FROM Sessions S
+        JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN LapTimes L ON S.session_id = L.session_id
         JOIN Races R ON S.race_id = R.race_id
         WHERE S.track_temp IS NOT NULL AND L.lap_time_ms IS NOT NULL
@@ -215,7 +219,7 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
             D.code AS driver_code,
             D.forename,
             D.surname,
-            D.nationality,
+            N.nationality_name AS nationality,
             COUNT(DISTINCT Res.race_id) AS races_entered,
             SUM(Res.points) AS total_points,
             AVG(Res.position) AS avg_finish_position,
@@ -223,6 +227,7 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
             COUNT(CASE WHEN Res.position <= 3 THEN 1 END) AS podiums,
             COUNT(CASE WHEN Res.position <= 10 THEN 1 END) AS points_finishes
         FROM Drivers D
+        LEFT JOIN Nationalities N ON D.nationality_id = N.nationality_id
         JOIN Results Res ON D.driver_id = Res.driver_id
         WHERE Res.position IS NOT NULL
         GROUP BY D.driver_id
@@ -250,12 +255,13 @@ def compute_constructor_standings(conn: sqlite3.Connection) -> pd.DataFrame:
     query = """
         SELECT
             C.name AS constructor,
-            C.nationality,
+            N.nationality_name AS nationality,
             COUNT(DISTINCT R.race_id) AS races,
             SUM(Res.points) AS total_points,
             COUNT(CASE WHEN Res.position = 1 THEN 1 END) AS wins,
             COUNT(CASE WHEN Res.position <= 3 THEN 1 END) AS podiums
         FROM Constructors C
+        LEFT JOIN Nationalities N ON C.nationality_id = N.nationality_id
         JOIN Results Res ON C.constructor_id = Res.constructor_id
         JOIN Races R ON Res.race_id = R.race_id
         WHERE Res.position IS NOT NULL
