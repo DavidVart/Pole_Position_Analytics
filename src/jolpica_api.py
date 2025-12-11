@@ -41,7 +41,6 @@ def fetch_race_list(seasons: List[int]) -> List[Dict]:
 
     for season in seasons:
         url = f"{BASE_URL}/{season}.json"
-        print(f"Fetching race list for {season} from {url}")
 
         try:
             response = requests.get(url, timeout=10)
@@ -59,8 +58,6 @@ def fetch_race_list(seasons: List[int]) -> List[Dict]:
                     "circuit_name": race.get("Circuit", {}).get("circuitName"),
                 }
                 all_races.append(race_info)
-
-            print(f"  Found {len(races)} races for {season}")
 
         except requests.RequestException as e:
             print(f"Error fetching race list for {season}: {e}")
@@ -144,11 +141,9 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
 
     if progress:
         start_season, start_round, _ = progress
-        print(f"Resuming from season {start_season}, round {start_round + 1}")
     else:
         start_season = TARGET_SEASONS[0]
         start_round = 0
-        print(f"Starting fresh from season {start_season}")
 
     # Fetch all races for target seasons
     all_races = fetch_race_list(TARGET_SEASONS)
@@ -162,10 +157,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
             races_to_process.append(race)
 
     if not races_to_process:
-        print("No new races to process")
         return 0
-
-    print(f"Processing up to {MAX_NEW_RESULTS_PER_RUN} new results...")
 
     new_rows_inserted = 0
     cur = conn.cursor()
@@ -176,10 +168,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
 
         # Check if we've hit the limit
         if new_rows_inserted >= MAX_NEW_RESULTS_PER_RUN:
-            print(f"Reached limit of {MAX_NEW_RESULTS_PER_RUN} new rows")
             break
-
-        print(f"Processing {season} Round {round_num}: {race['race_name']}")
 
         # Get or create race record
         race_id = get_or_create_race(
@@ -195,7 +184,6 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
         results = fetch_race_results(season, round_num)
 
         if not results:
-            print("  No results found, skipping")
             continue
 
         # Process each result
@@ -247,14 +235,11 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
         # Update progress after each race
         update_progress(conn, "jolpica", season, round_num)
 
-        print(f"  Added {cur.rowcount} results (total new: {new_rows_inserted})")
-
         # If we hit the limit, stop processing more races
         if new_rows_inserted >= MAX_NEW_RESULTS_PER_RUN:
             break
 
     conn.commit()
-    print(f"Total new Results rows added: {new_rows_inserted}")
     return new_rows_inserted
 
 

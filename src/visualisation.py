@@ -39,7 +39,6 @@ def plot_avg_lap_times(
         output_filename: Output filename for the plot
     """
     if df.empty:
-        print("No data available for lap times visualization")
         return
 
     # Filter to specific race if requested
@@ -57,7 +56,6 @@ def plot_avg_lap_times(
             df_filtered = df.head(20)  # Limit to 20 drivers
 
     if df_filtered.empty:
-        print("No data for the specified race")
         return
 
     # Sort by lap time
@@ -108,7 +106,6 @@ def plot_avg_lap_times(
     # Save plot
     output_path = FIG_DIR / output_filename
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    print(f"Saved lap times plot to {output_path}")
     plt.close()
 
 
@@ -126,7 +123,6 @@ def plot_temp_vs_lap_scatter(
         output_filename: Output filename for the plot
     """
     if df.empty:
-        print("No data available for temperature correlation visualization")
         return
 
     # Convert to seconds if not already done
@@ -176,7 +172,6 @@ def plot_temp_vs_lap_scatter(
     # Save plot
     output_path = FIG_DIR / output_filename
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    print(f"Saved temperature correlation plot to {output_path}")
     plt.close()
 
 
@@ -220,9 +215,6 @@ def plot_lap_progression(
     df = pd.read_sql_query(query, conn, params=params)
 
     if df.empty:
-        print(
-            f"No lap data available for {season} round {round_num} with specified drivers"
-        )
         return
 
     # Convert to seconds
@@ -262,7 +254,6 @@ def plot_lap_progression(
     # Save plot
     output_path = FIG_DIR / output_filename
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    print(f"Saved lap progression plot to {output_path}")
     plt.close()
 
 
@@ -277,7 +268,6 @@ def plot_tyre_performance(
         output_filename: Output filename for the plot
     """
     if df.empty:
-        print("No data available for tyre performance visualization")
         return
 
     # Sort by lap time
@@ -346,7 +336,6 @@ def plot_tyre_performance(
     # Save plot
     output_path = FIG_DIR / output_filename
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    print(f"Saved tyre performance plot to {output_path}")
     plt.close()
 
 
@@ -362,7 +351,6 @@ def plot_grid_vs_finish(
         output_filename: Output filename for the plot
     """
     if df.empty:
-        print("No data available for grid vs finish visualization")
         return
 
     # Get top movers (most positions gained)
@@ -419,7 +407,6 @@ def plot_grid_vs_finish(
     # Save plot
     output_path = FIG_DIR / output_filename
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    print(f"Saved grid vs finish plot to {output_path}")
     plt.close()
 
 
@@ -433,10 +420,6 @@ def generate_all_visualizations(
         conn: Database connection
         calculation_results: Dictionary with calculation results from calculations.py
     """
-    print("\n" + "=" * 60)
-    print("Generating visualizations...")
-    print("=" * 60 + "\n")
-
     # 1. Average lap times
     if not calculation_results["avg_lap_times"].empty:
         plot_avg_lap_times(calculation_results["avg_lap_times"])
@@ -473,10 +456,6 @@ def generate_all_visualizations(
 
             if len(top_drivers) >= 2:
                 plot_lap_progression(conn, season, round_num, top_drivers)
-
-    print("\n" + "=" * 60)
-    print("All visualizations complete!")
-    print("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,6 @@ def write_to_csv(df: pd.DataFrame, filename: str) -> None:
     """
     output_path = OUTPUT_CSV_DIR / filename
     df.to_csv(output_path, index=False)
-    print(f"  Wrote {len(df)} rows to {output_path}")
 
 
 def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
@@ -42,8 +41,6 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
     Returns:
         DataFrame with average lap times
     """
-    print("Computing average lap times per driver per race...")
-
     query = """
         SELECT
             R.season,
@@ -74,8 +71,6 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
         df["slowest_lap_sec"] = df["slowest_lap_ms"] / 1000
 
         write_to_csv(df, "avg_lap_times.csv")
-    else:
-        print("  No lap time data available yet")
 
     return df
 
@@ -91,8 +86,6 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
     Returns:
         DataFrame with grid vs finish analysis
     """
-    print("Computing grid vs finish positions...")
-
     query = """
         SELECT
             R.season,
@@ -119,8 +112,6 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
 
     if not df.empty:
         write_to_csv(df, "grid_vs_finish.csv")
-    else:
-        print("  No race results data available yet")
 
     return df
 
@@ -135,8 +126,6 @@ def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
     Returns:
         DataFrame with tyre performance statistics
     """
-    print("Computing tyre compound performance...")
-
     query = """
         SELECT
             L.compound,
@@ -160,8 +149,6 @@ def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
         df["slowest_lap_sec"] = df["slowest_lap_ms"] / 1000
 
         write_to_csv(df, "tyre_performance.csv")
-    else:
-        print("  No tyre compound data available yet")
 
     return df
 
@@ -177,8 +164,6 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
     Returns:
         Tuple of (correlation coefficient, DataFrame with data)
     """
-    print("Computing track temperature vs lap time correlation...")
-
     query = """
         SELECT
             S.session_id,
@@ -209,11 +194,7 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
 
         # Calculate correlation
         correlation = df["track_temp"].corr(df["avg_lap_time_ms"])
-        print(f"  Correlation coefficient: {correlation:.4f}")
-
         write_to_csv(df, "temp_lap_corr.csv")
-    else:
-        print("  Insufficient weather data for correlation analysis")
 
     return correlation, df
 
@@ -229,8 +210,6 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
     Returns:
         DataFrame with driver statistics
     """
-    print("Computing driver statistics...")
-
     query = """
         SELECT
             D.code AS driver_code,
@@ -254,8 +233,6 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
 
     if not df.empty:
         write_to_csv(df, "driver_statistics.csv")
-    else:
-        print("  No driver statistics available yet")
 
     return df
 
@@ -270,8 +247,6 @@ def compute_constructor_standings(conn: sqlite3.Connection) -> pd.DataFrame:
     Returns:
         DataFrame with constructor standings
     """
-    print("Computing constructor standings...")
-
     query = """
         SELECT
             C.name AS constructor,
@@ -292,8 +267,6 @@ def compute_constructor_standings(conn: sqlite3.Connection) -> pd.DataFrame:
 
     if not df.empty:
         write_to_csv(df, "constructor_standings.csv")
-    else:
-        print("  No constructor data available yet")
 
     return df
 
@@ -308,10 +281,6 @@ def run_all_calculations(conn: sqlite3.Connection) -> dict:
     Returns:
         Dictionary with all calculation results
     """
-    print("\n" + "=" * 60)
-    print("Running all calculations...")
-    print("=" * 60 + "\n")
-
     results = {
         "avg_lap_times": compute_average_lap_times(conn),
         "grid_vs_finish": compute_grid_vs_finish(conn),
@@ -324,10 +293,6 @@ def run_all_calculations(conn: sqlite3.Connection) -> dict:
     corr, temp_df = correlate_temp_lap_time(conn)
     results["temp_correlation"] = corr
     results["temp_lap_data"] = temp_df
-
-    print("\n" + "=" * 60)
-    print("All calculations complete!")
-    print("=" * 60 + "\n")
 
     return results
 
