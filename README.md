@@ -56,7 +56,6 @@ All tables use integer foreign keys to avoid duplicate string data across tables
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 ### 2. Install Dependencies
@@ -92,21 +91,6 @@ Each run will:
 - `lap_progression.png` - Line chart showing lap time progression
 - `tyre_performance.png` - Bar chart comparing tyre compounds
 
-## Requirements Compliance Checklist
-
-This project meets all SI 201 requirements:
-
-- ✅ Two distinct APIs with different base URLs
-- ✅ `requests.get` used for both data sources
-- ✅ 100+ rows per API source
-- ✅ Single SQLite database for all tables
-- ✅ No duplicate string data (normalized with integer IDs)
-- ✅ Multiple tables sharing integer keys with different row counts
-- ✅ Incremental loading: ≤25 new rows per run
-- ✅ No `DROP TABLE` statements in code
-- ✅ Separate calculations file with JOIN queries
-- ✅ Calculated data written to well-formatted CSV files
-- ✅ Multiple visualizations with proper labels and titles
 
 ## Data Collection Strategy
 
@@ -126,7 +110,3 @@ The incremental loading system tracks progress and ensures:
 - David - Jolpica API integration
 - Alberto - FastF1 integration
 - Both - Calculations, visualizations, and orchestration
-
-## License
-
-See LICENSE file for details.
