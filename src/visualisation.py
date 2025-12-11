@@ -481,9 +481,10 @@ def generate_all_visualizations(
 
 if __name__ == "__main__":
     # Test the module independently
-    from . import calculations, db_utils
+    from calculations import run_all_calculations
+    from db_utils import get_connection
 
-    conn = db_utils.get_connection()
-    calc_results = calculations.run_all_calculations(conn)
+    conn = get_connection()
+    calc_results = run_all_calculations(conn)
     generate_all_visualizations(conn, calc_results)
     conn.close()

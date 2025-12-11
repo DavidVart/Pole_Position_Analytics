@@ -176,7 +176,7 @@ def get_or_create_driver(
     )
 
     conn.commit()
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid is not None else 0
 
 
 def get_or_create_constructor(
@@ -219,7 +219,7 @@ def get_or_create_constructor(
     )
 
     conn.commit()
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid is not None else 0
 
 
 def get_or_create_race(
@@ -266,7 +266,7 @@ def get_or_create_race(
     )
 
     conn.commit()
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid is not None else 0
 
 
 def get_progress(

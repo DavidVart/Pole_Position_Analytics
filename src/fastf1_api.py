@@ -15,7 +15,15 @@ import fastf1
 import pandas as pd
 import requests
 
-from . import db_utils
+from db_utils import (
+    create_tables,
+    get_connection,
+    get_driver_by_code,
+    get_or_create_driver,
+    get_or_create_race,
+    get_progress,
+    update_progress,
+)
 
 MAX_NEW_LAPS_PER_RUN = 25
 ERGAST_URL = "http://ergast.com/api/f1"  # For explicit requests.get demonstration
@@ -290,7 +298,7 @@ def get_or_create_session(
     )
 
     conn.commit()
-    return cur.lastrowid
+    return cur.lastrowid if cur.lastrowid is not None else 0
 
 
 def store_fastf1_data(conn: sqlite3.Connection) -> int:
@@ -305,7 +313,7 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
         Number of new LapTimes rows added
     """
     # Get current progress
-    progress = db_utils.get_progress(conn, "fastf1")
+    progress = get_progress(conn, "fastf1")
 
     # Determine where to start
     start_index = 0
@@ -371,7 +379,7 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
             race_id = race_row[0]
         else:
             # Create race record if it doesn't exist
-            race_id = db_utils.get_or_create_race(
+            race_id = get_or_create_race(
                 conn,
                 season=year,
                 round_num=0,  # Will be updated later if needed
@@ -409,11 +417,11 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
 
                 # Find or create driver using driver code
                 driver_code = lap["driver_code"]
-                driver_id = db_utils.get_driver_by_code(conn, driver_code)
+                driver_id = get_driver_by_code(conn, driver_code)
 
                 if driver_id is None:
                     # Create driver record with FastF1 prefix
-                    driver_id = db_utils.get_or_create_driver(
+                    driver_id = get_or_create_driver(
                         conn,
                         api_driver_id=f"fastf1_{driver_code}",
                         code=driver_code,
@@ -454,7 +462,7 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
             print(f"  {session_type}: Added laps (total new: {new_laps_inserted})")
 
         # Update progress after each event
-        db_utils.update_progress(conn, "fastf1", year, 0, event_name)
+        update_progress(conn, "fastf1", year, 0, event_name)
 
         if new_laps_inserted >= MAX_NEW_LAPS_PER_RUN:
             break
@@ -466,8 +474,8 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
 
 if __name__ == "__main__":
     # Test the module independently
-    conn = db_utils.get_connection()
-    db_utils.create_tables(conn)
+    conn = get_connection()
+    create_tables(conn)
     count = store_fastf1_data(conn)
     print(f"Completed: {count} new laps added")
     conn.close()

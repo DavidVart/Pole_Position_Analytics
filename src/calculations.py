@@ -12,7 +12,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from . import db_utils
+from db_utils import get_connection
 
 OUTPUT_CSV_DIR = Path("outputs/csv")
 OUTPUT_CSV_DIR.mkdir(parents=True, exist_ok=True)
@@ -334,7 +334,7 @@ def run_all_calculations(conn: sqlite3.Connection) -> dict:
 
 if __name__ == "__main__":
     # Test the module independently
-    conn = db_utils.get_connection()
+    conn = get_connection()
     results = run_all_calculations(conn)
 
     # Print summary

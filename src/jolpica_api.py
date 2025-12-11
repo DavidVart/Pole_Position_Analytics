@@ -11,7 +11,15 @@ from typing import Dict, List
 
 import requests
 
-from . import db_utils
+from db_utils import (
+    create_tables,
+    get_connection,
+    get_or_create_constructor,
+    get_or_create_driver,
+    get_or_create_race,
+    get_progress,
+    update_progress,
+)
 
 BASE_URL = "https://api.jolpi.ca/ergast/f1"
 MAX_NEW_RESULTS_PER_RUN = 25
@@ -132,7 +140,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
         Number of new Results rows added
     """
     # Get current progress
-    progress = db_utils.get_progress(conn, "jolpica")
+    progress = get_progress(conn, "jolpica")
 
     if progress:
         start_season, start_round, _ = progress
@@ -174,7 +182,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
         print(f"Processing {season} Round {round_num}: {race['race_name']}")
 
         # Get or create race record
-        race_id = db_utils.get_or_create_race(
+        race_id = get_or_create_race(
             conn,
             season=season,
             round_num=round_num,
@@ -197,7 +205,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
                 break
 
             # Get or create driver
-            driver_id = db_utils.get_or_create_driver(
+            driver_id = get_or_create_driver(
                 conn,
                 api_driver_id=result["driver_id"],
                 code=result["driver_code"],
@@ -207,7 +215,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
             )
 
             # Get or create constructor
-            constructor_id = db_utils.get_or_create_constructor(
+            constructor_id = get_or_create_constructor(
                 conn,
                 api_constructor_id=result["constructor_id"],
                 name=result["constructor_name"],
@@ -237,7 +245,7 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
                 new_rows_inserted += 1
 
         # Update progress after each race
-        db_utils.update_progress(conn, "jolpica", season, round_num)
+        update_progress(conn, "jolpica", season, round_num)
 
         print(f"  Added {cur.rowcount} results (total new: {new_rows_inserted})")
 
@@ -252,8 +260,8 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
 
 if __name__ == "__main__":
     # Test the module independently
-    conn = db_utils.get_connection()
-    db_utils.create_tables(conn)
+    conn = get_connection()
+    create_tables(conn)
     count = store_jolpica_data(conn)
     print(f"Completed: {count} new rows added")
     conn.close()
