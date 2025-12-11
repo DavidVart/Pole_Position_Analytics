@@ -7,7 +7,6 @@ import sqlite3
 from pathlib import Path
 from typing import Optional, Tuple
 
-
 DB_PATH = Path("data/f1_project.db")
 
 
@@ -15,7 +14,7 @@ def get_connection() -> sqlite3.Connection:
     """
     Create and return a SQLite database connection with foreign keys enabled.
     Creates the data directory if it doesn't exist.
-    
+
     Returns:
         sqlite3.Connection: Database connection object
     """
@@ -29,7 +28,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     """
     Create all required tables for the F1 project if they don't exist.
     Tables are normalized to avoid duplicate string data.
-    
+
     Args:
         conn: SQLite database connection
     """
@@ -139,12 +138,12 @@ def get_or_create_driver(
     code: Optional[str] = None,
     forename: Optional[str] = None,
     surname: Optional[str] = None,
-    nationality: Optional[str] = None
+    nationality: Optional[str] = None,
 ) -> int:
     """
     Get existing driver_id or create new driver record.
     Uses api_driver_id as unique identifier to avoid duplicates.
-    
+
     Args:
         conn: Database connection
         api_driver_id: Unique driver ID from API
@@ -152,28 +151,30 @@ def get_or_create_driver(
         forename: Driver first name
         surname: Driver last name
         nationality: Driver nationality
-        
+
     Returns:
         int: driver_id
     """
     cur = conn.cursor()
-    
+
     # Try to find existing driver
     cur.execute(
-        "SELECT driver_id FROM Drivers WHERE api_driver_id = ?",
-        (api_driver_id,)
+        "SELECT driver_id FROM Drivers WHERE api_driver_id = ?", (api_driver_id,)
     )
     row = cur.fetchone()
-    
+
     if row:
         return row[0]
-    
+
     # Create new driver
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO Drivers (api_driver_id, code, forename, surname, nationality)
         VALUES (?, ?, ?, ?, ?)
-    """, (api_driver_id, code, forename, surname, nationality))
-    
+    """,
+        (api_driver_id, code, forename, surname, nationality),
+    )
+
     conn.commit()
     return cur.lastrowid
 
@@ -182,38 +183,41 @@ def get_or_create_constructor(
     conn: sqlite3.Connection,
     api_constructor_id: str,
     name: Optional[str] = None,
-    nationality: Optional[str] = None
+    nationality: Optional[str] = None,
 ) -> int:
     """
     Get existing constructor_id or create new constructor record.
-    
+
     Args:
         conn: Database connection
         api_constructor_id: Unique constructor ID from API
         name: Constructor name
         nationality: Constructor nationality
-        
+
     Returns:
         int: constructor_id
     """
     cur = conn.cursor()
-    
+
     # Try to find existing constructor
     cur.execute(
         "SELECT constructor_id FROM Constructors WHERE api_constructor_id = ?",
-        (api_constructor_id,)
+        (api_constructor_id,),
     )
     row = cur.fetchone()
-    
+
     if row:
         return row[0]
-    
+
     # Create new constructor
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO Constructors (api_constructor_id, name, nationality)
         VALUES (?, ?, ?)
-    """, (api_constructor_id, name, nationality))
-    
+    """,
+        (api_constructor_id, name, nationality),
+    )
+
     conn.commit()
     return cur.lastrowid
 
@@ -224,12 +228,12 @@ def get_or_create_race(
     round_num: int,
     race_name: Optional[str] = None,
     date: Optional[str] = None,
-    circuit_name: Optional[str] = None
+    circuit_name: Optional[str] = None,
 ) -> int:
     """
     Get existing race_id or create new race record.
     Uses (season, round) as unique identifier.
-    
+
     Args:
         conn: Database connection
         season: Season year
@@ -237,47 +241,51 @@ def get_or_create_race(
         race_name: Name of the race/Grand Prix
         date: Race date
         circuit_name: Circuit name
-        
+
     Returns:
         int: race_id
     """
     cur = conn.cursor()
-    
+
     # Try to find existing race
     cur.execute(
-        "SELECT race_id FROM Races WHERE season = ? AND round = ?",
-        (season, round_num)
+        "SELECT race_id FROM Races WHERE season = ? AND round = ?", (season, round_num)
     )
     row = cur.fetchone()
-    
+
     if row:
         return row[0]
-    
+
     # Create new race
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO Races (season, round, race_name, date, circuit_name)
         VALUES (?, ?, ?, ?, ?)
-    """, (season, round_num, race_name, date, circuit_name))
-    
+    """,
+        (season, round_num, race_name, date, circuit_name),
+    )
+
     conn.commit()
     return cur.lastrowid
 
 
-def get_progress(conn: sqlite3.Connection, source: str) -> Optional[Tuple[int, int, Optional[str]]]:
+def get_progress(
+    conn: sqlite3.Connection, source: str
+) -> Optional[Tuple[int, int, Optional[str]]]:
     """
     Get the last progress checkpoint for a data source.
-    
+
     Args:
         conn: Database connection
         source: Data source name ('jolpica' or 'fastf1')
-        
+
     Returns:
         Tuple of (last_season, last_round, last_event) or None if no progress exists
     """
     cur = conn.cursor()
     cur.execute(
         "SELECT last_season, last_round, last_event FROM LoadProgress WHERE source = ?",
-        (source,)
+        (source,),
     )
     row = cur.fetchone()
     return row if row else None
@@ -288,11 +296,11 @@ def update_progress(
     source: str,
     season: int,
     round_num: int,
-    event: Optional[str] = None
+    event: Optional[str] = None,
 ) -> None:
     """
     Update the progress checkpoint for a data source.
-    
+
     Args:
         conn: Database connection
         source: Data source name ('jolpica' or 'fastf1')
@@ -301,21 +309,24 @@ def update_progress(
         event: Last processed event name (for FastF1)
     """
     cur = conn.cursor()
-    cur.execute("""
+    cur.execute(
+        """
         INSERT OR REPLACE INTO LoadProgress (source, last_season, last_round, last_event)
         VALUES (?, ?, ?, ?)
-    """, (source, season, round_num, event))
+    """,
+        (source, season, round_num, event),
+    )
     conn.commit()
 
 
 def get_driver_by_code(conn: sqlite3.Connection, code: str) -> Optional[int]:
     """
     Get driver_id by driver code.
-    
+
     Args:
         conn: Database connection
         code: Driver code (e.g., 'VER', 'HAM')
-        
+
     Returns:
         int: driver_id or None if not found
     """
@@ -323,4 +334,3 @@ def get_driver_by_code(conn: sqlite3.Connection, code: str) -> Optional[int]:
     cur.execute("SELECT driver_id FROM Drivers WHERE code = ?", (code,))
     row = cur.fetchone()
     return row[0] if row else None
-

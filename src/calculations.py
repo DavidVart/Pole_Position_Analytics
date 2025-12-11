@@ -7,11 +7,12 @@ Authors: David & Alberto
 """
 
 import sqlite3
-import pandas as pd
 from pathlib import Path
 from typing import Tuple
-from . import db_utils
 
+import pandas as pd
+
+from . import db_utils
 
 OUTPUT_CSV_DIR = Path("outputs/csv")
 OUTPUT_CSV_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,7 +21,7 @@ OUTPUT_CSV_DIR.mkdir(parents=True, exist_ok=True)
 def write_to_csv(df: pd.DataFrame, filename: str) -> None:
     """
     Write a DataFrame to a CSV file in the output directory.
-    
+
     Args:
         df: DataFrame to write
         filename: Output filename (without path)
@@ -34,15 +35,15 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     Calculate average lap time per driver per race using JOIN queries.
     This satisfies the requirement for JOIN-based calculations.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         DataFrame with average lap times
     """
     print("Computing average lap times per driver per race...")
-    
+
     query = """
         SELECT
             R.season,
@@ -63,19 +64,19 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
         GROUP BY R.season, R.round, D.driver_id
         ORDER BY R.season, R.round, avg_lap_time_ms
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     if not df.empty:
         # Convert milliseconds to seconds for readability
-        df['avg_lap_time_sec'] = df['avg_lap_time_ms'] / 1000
-        df['fastest_lap_sec'] = df['fastest_lap_ms'] / 1000
-        df['slowest_lap_sec'] = df['slowest_lap_ms'] / 1000
-        
+        df["avg_lap_time_sec"] = df["avg_lap_time_ms"] / 1000
+        df["fastest_lap_sec"] = df["fastest_lap_ms"] / 1000
+        df["slowest_lap_sec"] = df["slowest_lap_ms"] / 1000
+
         write_to_csv(df, "avg_lap_times.csv")
     else:
         print("  No lap time data available yet")
-    
+
     return df
 
 
@@ -83,15 +84,15 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     Calculate position changes from grid to finish for each driver.
     Uses JOIN to combine Results, Races, and Drivers tables.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         DataFrame with grid vs finish analysis
     """
     print("Computing grid vs finish positions...")
-    
+
     query = """
         SELECT
             R.season,
@@ -113,29 +114,29 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
         WHERE Res.grid > 0 AND Res.position IS NOT NULL
         ORDER BY R.season, R.round, Res.position
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     if not df.empty:
         write_to_csv(df, "grid_vs_finish.csv")
     else:
         print("  No race results data available yet")
-    
+
     return df
 
 
 def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     Calculate average lap time by tyre compound.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         DataFrame with tyre performance statistics
     """
     print("Computing tyre compound performance...")
-    
+
     query = """
         SELECT
             L.compound,
@@ -149,19 +150,19 @@ def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
         GROUP BY L.compound
         ORDER BY avg_lap_time_ms
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     if not df.empty:
         # Convert to seconds
-        df['avg_lap_time_sec'] = df['avg_lap_time_ms'] / 1000
-        df['fastest_lap_sec'] = df['fastest_lap_ms'] / 1000
-        df['slowest_lap_sec'] = df['slowest_lap_ms'] / 1000
-        
+        df["avg_lap_time_sec"] = df["avg_lap_time_ms"] / 1000
+        df["fastest_lap_sec"] = df["fastest_lap_ms"] / 1000
+        df["slowest_lap_sec"] = df["slowest_lap_ms"] / 1000
+
         write_to_csv(df, "tyre_performance.csv")
     else:
         print("  No tyre compound data available yet")
-    
+
     return df
 
 
@@ -169,15 +170,15 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
     """
     Calculate correlation between track temperature and average lap time.
     Uses JOIN to combine Sessions and LapTimes data.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         Tuple of (correlation coefficient, DataFrame with data)
     """
     print("Computing track temperature vs lap time correlation...")
-    
+
     query = """
         SELECT
             S.session_id,
@@ -197,23 +198,23 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
         GROUP BY S.session_id
         ORDER BY R.season, R.round
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     correlation = 0.0
-    
+
     if not df.empty and len(df) > 1:
         # Convert to seconds
-        df['avg_lap_time_sec'] = df['avg_lap_time_ms'] / 1000
-        
+        df["avg_lap_time_sec"] = df["avg_lap_time_ms"] / 1000
+
         # Calculate correlation
-        correlation = df['track_temp'].corr(df['avg_lap_time_ms'])
+        correlation = df["track_temp"].corr(df["avg_lap_time_ms"])
         print(f"  Correlation coefficient: {correlation:.4f}")
-        
+
         write_to_csv(df, "temp_lap_corr.csv")
     else:
         print("  Insufficient weather data for correlation analysis")
-    
+
     return correlation, df
 
 
@@ -221,15 +222,15 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     Calculate overall driver statistics across all races.
     Combines data from multiple tables using JOINs.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         DataFrame with driver statistics
     """
     print("Computing driver statistics...")
-    
+
     query = """
         SELECT
             D.code AS driver_code,
@@ -248,29 +249,29 @@ def compute_driver_statistics(conn: sqlite3.Connection) -> pd.DataFrame:
         GROUP BY D.driver_id
         ORDER BY total_points DESC
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     if not df.empty:
         write_to_csv(df, "driver_statistics.csv")
     else:
         print("  No driver statistics available yet")
-    
+
     return df
 
 
 def compute_constructor_standings(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     Calculate constructor championship standings.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         DataFrame with constructor standings
     """
     print("Computing constructor standings...")
-    
+
     query = """
         SELECT
             C.name AS constructor,
@@ -286,48 +287,48 @@ def compute_constructor_standings(conn: sqlite3.Connection) -> pd.DataFrame:
         GROUP BY C.constructor_id
         ORDER BY total_points DESC
     """
-    
+
     df = pd.read_sql_query(query, conn)
-    
+
     if not df.empty:
         write_to_csv(df, "constructor_standings.csv")
     else:
         print("  No constructor data available yet")
-    
+
     return df
 
 
 def run_all_calculations(conn: sqlite3.Connection) -> dict:
     """
     Run all calculation functions and return results.
-    
+
     Args:
         conn: Database connection
-        
+
     Returns:
         Dictionary with all calculation results
     """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Running all calculations...")
-    print("="*60 + "\n")
-    
+    print("=" * 60 + "\n")
+
     results = {
-        'avg_lap_times': compute_average_lap_times(conn),
-        'grid_vs_finish': compute_grid_vs_finish(conn),
-        'tyre_performance': compute_tyre_performance(conn),
-        'driver_statistics': compute_driver_statistics(conn),
-        'constructor_standings': compute_constructor_standings(conn)
+        "avg_lap_times": compute_average_lap_times(conn),
+        "grid_vs_finish": compute_grid_vs_finish(conn),
+        "tyre_performance": compute_tyre_performance(conn),
+        "driver_statistics": compute_driver_statistics(conn),
+        "constructor_standings": compute_constructor_standings(conn),
     }
-    
+
     # Temperature correlation returns tuple
     corr, temp_df = correlate_temp_lap_time(conn)
-    results['temp_correlation'] = corr
-    results['temp_lap_data'] = temp_df
-    
-    print("\n" + "="*60)
+    results["temp_correlation"] = corr
+    results["temp_lap_data"] = temp_df
+
+    print("\n" + "=" * 60)
     print("All calculations complete!")
-    print("="*60 + "\n")
-    
+    print("=" * 60 + "\n")
+
     return results
 
 
@@ -335,7 +336,7 @@ if __name__ == "__main__":
     # Test the module independently
     conn = db_utils.get_connection()
     results = run_all_calculations(conn)
-    
+
     # Print summary
     print("\nSummary:")
     for key, value in results.items():
@@ -343,6 +344,5 @@ if __name__ == "__main__":
             print(f"  {key}: {len(value)} rows")
         else:
             print(f"  {key}: {value}")
-    
-    conn.close()
 
+    conn.close()
