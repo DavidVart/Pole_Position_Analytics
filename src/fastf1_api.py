@@ -24,6 +24,7 @@ from db_utils import (
     get_or_create_compound,
     get_or_create_driver,
     get_or_create_race,
+    get_or_create_race_name,
     get_or_create_session_type,
     get_progress,
     update_progress,
@@ -353,24 +354,34 @@ def store_fastf1_data(conn: sqlite3.Connection) -> int:
         if new_laps_inserted >= MAX_NEW_LAPS_PER_RUN:
             break
 
+        # Get or create race name ID (normalized)
+        race_name_id = get_or_create_race_name(conn, race_full_name)
+
         # Make explicit requests.get call to satisfy requirements
         # We need to find the round number for this event
-        cur.execute(
-            "SELECT round FROM Races WHERE season = ? AND race_name = ?",
-            (year, race_full_name),
-        )
-        round_row = cur.fetchone()
+        if race_name_id:
+            cur.execute(
+                "SELECT round FROM Races WHERE season = ? AND race_name_id = ?",
+                (year, race_name_id),
+            )
+            round_row = cur.fetchone()
 
-        if round_row:
-            round_num = round_row[0]
-            fetch_race_metadata_with_requests(year, round_num)
+            if round_row:
+                round_num = round_row[0]
+                fetch_race_metadata_with_requests(year, round_num)
 
         # Get or create race record
         # Try to match with existing race from Jolpica
-        cur.execute(
-            "SELECT race_id FROM Races WHERE season = ? AND race_name = ?",
-            (year, race_full_name),
-        )
+        if race_name_id:
+            cur.execute(
+                "SELECT race_id FROM Races WHERE season = ? AND race_name_id = ?",
+                (year, race_name_id),
+            )
+        else:
+            cur.execute(
+                "SELECT race_id FROM Races WHERE season = ? AND race_name_id IS NULL",
+                (year,),
+            )
         race_row = cur.fetchone()
 
         if race_row:

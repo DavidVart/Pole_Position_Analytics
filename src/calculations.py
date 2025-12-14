@@ -45,7 +45,7 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
         SELECT
             R.season,
             R.round,
-            R.race_name,
+            RN.race_name,
             D.code AS driver_code,
             D.forename,
             D.surname,
@@ -57,6 +57,7 @@ def compute_average_lap_times(conn: sqlite3.Connection) -> pd.DataFrame:
         JOIN Sessions S ON L.session_id = S.session_id
         JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN Races R ON S.race_id = R.race_id
+        LEFT JOIN RaceNames RN ON R.race_name_id = RN.race_name_id
         JOIN Drivers D ON L.driver_id = D.driver_id
         WHERE L.lap_time_ms IS NOT NULL
         GROUP BY R.season, R.round, D.driver_id
@@ -91,7 +92,7 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
         SELECT
             R.season,
             R.round,
-            R.race_name,
+            RN.race_name,
             D.code AS driver_code,
             D.forename,
             D.surname,
@@ -103,6 +104,7 @@ def compute_grid_vs_finish(conn: sqlite3.Connection) -> pd.DataFrame:
             Stat.status_text AS status
         FROM Results Res
         JOIN Races R ON Res.race_id = R.race_id
+        LEFT JOIN RaceNames RN ON R.race_name_id = RN.race_name_id
         JOIN Drivers D ON Res.driver_id = D.driver_id
         JOIN Constructors C ON Res.constructor_id = C.constructor_id
         LEFT JOIN Statuses Stat ON Res.status_id = Stat.status_id
@@ -172,7 +174,7 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
             S.session_id,
             R.season,
             R.round,
-            R.race_name,
+            RN.race_name,
             ST.session_type_code AS session_type,
             S.track_temp,
             S.humidity,
@@ -183,6 +185,7 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
         JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN LapTimes L ON S.session_id = L.session_id
         JOIN Races R ON S.race_id = R.race_id
+        LEFT JOIN RaceNames RN ON R.race_name_id = RN.race_name_id
         WHERE S.track_temp IS NOT NULL AND L.lap_time_ms IS NOT NULL
         GROUP BY S.session_id
         ORDER BY R.season, R.round

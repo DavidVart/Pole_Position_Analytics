@@ -80,6 +80,13 @@ def create_tables(conn: sqlite3.Connection) -> None:
         );
     """)
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS RaceNames (
+            race_name_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            race_name TEXT UNIQUE NOT NULL
+        );
+    """)
+
     # Normalized driver table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS Drivers (
@@ -106,15 +113,17 @@ def create_tables(conn: sqlite3.Connection) -> None:
 
     # Races table with unique season/round combination
     # Date stored as INTEGER (YYYYMMDD) to avoid duplicate date strings
+    # Race name normalized to avoid duplicate strings
     cur.execute("""
         CREATE TABLE IF NOT EXISTS Races (
             race_id INTEGER PRIMARY KEY AUTOINCREMENT,
             season INTEGER NOT NULL,
             round INTEGER NOT NULL,
-            race_name TEXT,
+            race_name_id INTEGER,
             date INTEGER,  -- Stored as YYYYMMDD integer to avoid duplicate strings
             circuit_id INTEGER,
             UNIQUE (season, round),
+            FOREIGN KEY (race_name_id) REFERENCES RaceNames(race_name_id),
             FOREIGN KEY (circuit_id) REFERENCES Circuits(circuit_id)
         );
     """)
@@ -305,13 +314,16 @@ def get_or_create_race(
     if row:
         return row[0]
 
+    # Get or create normalized race name
+    race_name_id = get_or_create_race_name(conn, race_name)
+
     # Create new race
     cur.execute(
         """
-        INSERT INTO Races (season, round, race_name, date, circuit_id)
+        INSERT INTO Races (season, round, race_name_id, date, circuit_id)
         VALUES (?, ?, ?, ?, ?)
     """,
-        (season, round_num, race_name, date, circuit_id),
+        (season, round_num, race_name_id, date, circuit_id),
     )
 
     conn.commit()
@@ -554,6 +566,39 @@ def get_or_create_compound(
 
     # Create new compound
     cur.execute("INSERT INTO Compounds (compound_name) VALUES (?)", (compound_name,))
+
+    conn.commit()
+    return cur.lastrowid if cur.lastrowid is not None else None
+
+
+def get_or_create_race_name(
+    conn: sqlite3.Connection, race_name: Optional[str]
+) -> Optional[int]:
+    """
+    Get existing race_name_id or create new race name record.
+
+    Args:
+        conn: Database connection
+        race_name: Race name (e.g., 'Bahrain Grand Prix')
+
+    Returns:
+        int: race_name_id or None if race_name is None/empty
+    """
+    if race_name is None or race_name.strip() == "":
+        return None
+
+    cur = conn.cursor()
+    race_name = race_name.strip()
+
+    # Try to find existing race name
+    cur.execute("SELECT race_name_id FROM RaceNames WHERE race_name = ?", (race_name,))
+    row = cur.fetchone()
+
+    if row:
+        return row[0]
+
+    # Create new race name
+    cur.execute("INSERT INTO RaceNames (race_name) VALUES (?)", (race_name,))
 
     conn.commit()
     return cur.lastrowid if cur.lastrowid is not None else None
