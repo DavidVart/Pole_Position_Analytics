@@ -540,26 +540,37 @@ def store_openf1_data(conn: sqlite3.Connection) -> int:
                         continue
 
                     lap_number = clean_integer(lap.get("lap_number"))
-                    lap_duration = lap.get("lap_duration")
+                    raw_lap_duration = lap.get("lap_duration")
+
+                    # Normalize lap duration first to safely handle strings and numbers
+                    lap_duration_sec = clean_float(raw_lap_duration)
 
                     # Skip laps without valid data
-                    if lap_number is None or lap_duration is None:
+                    if lap_number is None or lap_duration_sec is None:
                         continue
 
                     # Convert lap duration from seconds to milliseconds
-                    lap_time_ms = clean_integer(lap_duration * 1000)
+                    lap_time_ms = clean_integer(lap_duration_sec * 1000)
 
                     # Convert sector times from seconds to milliseconds
                     sector1_ms = None
                     sector2_ms = None
                     sector3_ms = None
 
-                    if lap.get("duration_sector_1") is not None:
-                        sector1_ms = clean_integer(lap.get("duration_sector_1") * 1000)
-                    if lap.get("duration_sector_2") is not None:
-                        sector2_ms = clean_integer(lap.get("duration_sector_2") * 1000)
-                    if lap.get("duration_sector_3") is not None:
-                        sector3_ms = clean_integer(lap.get("duration_sector_3") * 1000)
+                    raw_sector1 = lap.get("duration_sector_1")
+                    raw_sector2 = lap.get("duration_sector_2")
+                    raw_sector3 = lap.get("duration_sector_3")
+
+                    sector1_sec = clean_float(raw_sector1)
+                    sector2_sec = clean_float(raw_sector2)
+                    sector3_sec = clean_float(raw_sector3)
+
+                    if sector1_sec is not None:
+                        sector1_ms = clean_integer(sector1_sec * 1000)
+                    if sector2_sec is not None:
+                        sector2_ms = clean_integer(sector2_sec * 1000)
+                    if sector3_sec is not None:
+                        sector3_ms = clean_integer(sector3_sec * 1000)
 
                     # Get compound from stints (normalized via get_or_create_compound)
                     compound_name = get_compound_for_lap(stints, lap_number)
