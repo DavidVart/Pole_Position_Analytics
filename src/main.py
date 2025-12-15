@@ -10,8 +10,8 @@ Authors: David & Alberto
 
 from calculations import run_all_calculations
 from db_utils import create_tables, get_connection
-from fastf1_api import store_fastf1_data
 from jolpica_api import store_jolpica_data
+from openf1_api import store_openf1_data
 from visualisation import generate_all_visualizations
 
 
@@ -43,7 +43,7 @@ def check_data_requirements(conn) -> dict:
     cur.execute("SELECT COUNT(*) FROM Results")
     results_count = cur.fetchone()[0]
 
-    # Check LapTimes count (from FastF1 API)
+    # Check LapTimes count (from OpenF1 API)
     cur.execute("SELECT COUNT(*) FROM LapTimes")
     laps_count = cur.fetchone()[0]
 
@@ -75,22 +75,25 @@ def main():
 
     print_database_stats(conn)
 
+    # Gather data from Jolpica API (race results)
     try:
         jolpica_count = store_jolpica_data(conn)
     except Exception as e:
         print(f"Error gathering Jolpica data: {e}")
         jolpica_count = 0
 
+    # Gather data from OpenF1 API (lap times and telemetry)
     try:
-        fastf1_count = store_fastf1_data(conn)
+        openf1_count = store_openf1_data(conn)
     except Exception as e:
-        print(f"Error gathering FastF1 data: {e}")
-        fastf1_count = 0
+        print(f"Error gathering OpenF1 data: {e}")
+        openf1_count = 0
 
     print_database_stats(conn)
 
     req = check_data_requirements(conn)
 
+    # Run calculations if we have data
     if req["results_count"] > 0 or req["laps_count"] > 0:
         try:
             calc_results = run_all_calculations(conn)
@@ -101,6 +104,7 @@ def main():
         print("Skipping calculations - no data available")
         calc_results = None
 
+    # Generate visualizations if we have lap data
     if calc_results and req["laps_count"] > 0:
         try:
             generate_all_visualizations(conn, calc_results)
@@ -108,7 +112,7 @@ def main():
             print(f"Error during visualization: {e}")
 
     print("\nExecution Summary:")
-    print(f"  New data: {jolpica_count} Results, {fastf1_count} LapTimes")
+    print(f"  New data: {jolpica_count} Results, {openf1_count} LapTimes")
     print(
         f"  Total: {req['results_count']} Results, {req['laps_count']} LapTimes, {req['total_races']} Races"
     )
