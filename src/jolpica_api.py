@@ -26,7 +26,7 @@ from db_utils import (
 
 BASE_URL = "https://api.jolpi.ca/ergast/f1"
 MAX_NEW_RESULTS_PER_RUN = 25
-TARGET_SEASONS = [2022, 2023]
+TARGET_SEASONS = [2023]
 
 
 def fetch_race_list(seasons: List[int]) -> List[Dict]:

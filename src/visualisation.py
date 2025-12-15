@@ -50,29 +50,38 @@ def plot_avg_lap_times(
     if len(unique_drivers) == 1:
         # Single driver across multiple races
         df_sorted = df.sort_values(["season", "round"])
-        
+
         plt.figure(figsize=(16, 8))
-        
+
         # Create bar chart
-        x_labels = [f"{row.race_name}\n({row.season} R{row.round})" 
-                   for row in df_sorted.itertuples()]
-        
+        x_labels = [
+            f"{row.race_name}\n({row.season} R{row.round})"
+            for row in df_sorted.itertuples()
+        ]
+
         colors = sns.color_palette("viridis", len(df_sorted))
-        bars = plt.bar(range(len(df_sorted)), df_sorted["avg_lap_time_sec"], 
-                      color=colors, edgecolor='black', linewidth=1.5)
-        
+        bars = plt.bar(
+            range(len(df_sorted)),
+            df_sorted["avg_lap_time_sec"],
+            color=colors,
+            edgecolor="black",
+            linewidth=1.5,
+        )
+
         # Customize plot
         plt.xlabel("Race", fontsize=14, fontweight="bold")
         plt.ylabel("Average Lap Time (seconds)", fontsize=14, fontweight="bold")
         plt.title(
-            f"Average Lap Time Performance - {unique_drivers[0]} (2022 Season)",
+            f"Average Lap Time Performance - {unique_drivers[0]} (2023 Season)",
             fontsize=16,
             fontweight="bold",
             pad=20,
         )
-        
-        plt.xticks(range(len(df_sorted)), x_labels, rotation=45, ha="right", fontsize=10)
-        
+
+        plt.xticks(
+            range(len(df_sorted)), x_labels, rotation=45, ha="right", fontsize=10
+        )
+
         # Add value labels on bars
         for i, (bar, row) in enumerate(zip(bars, df_sorted.itertuples())):
             plt.text(
@@ -84,7 +93,7 @@ def plot_avg_lap_times(
                 fontsize=9,
                 fontweight="bold",
             )
-            
+
             # Add fastest lap annotation
             plt.text(
                 bar.get_x() + bar.get_width() / 2,
@@ -93,13 +102,13 @@ def plot_avg_lap_times(
                 ha="center",
                 va="center",
                 fontsize=8,
-                color='white',
-                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7),
+                color="white",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="black", alpha=0.7),
             )
-        
-        plt.grid(axis='y', alpha=0.3, linestyle='--')
+
+        plt.grid(axis="y", alpha=0.3, linestyle="--")
         plt.tight_layout()
-        
+
     else:
         # Multiple drivers - show single race comparison
         if race_filter:
@@ -125,7 +134,7 @@ def plot_avg_lap_times(
             range(len(df_filtered)),
             df_filtered["avg_lap_time_sec"],
             color=sns.color_palette("rocket", len(df_filtered)),
-            edgecolor='black',
+            edgecolor="black",
             linewidth=1.5,
         )
 
@@ -156,8 +165,8 @@ def plot_avg_lap_times(
                 va="bottom",
                 fontsize=8,
             )
-        
-        plt.grid(axis='y', alpha=0.3)
+
+        plt.grid(axis="y", alpha=0.3)
         plt.tight_layout()
 
     # Save plot
@@ -413,11 +422,17 @@ def plot_grid_vs_finish(
         return
 
     # Split into gainers and losers
-    gainers = df[df["positions_gained"] > 0].nlargest(top_n // 2 + 1, "positions_gained")
-    losers = df[df["positions_gained"] < 0].nsmallest(top_n // 2 + 1, "positions_gained")
-    
+    gainers = df[df["positions_gained"] > 0].nlargest(
+        top_n // 2 + 1, "positions_gained"
+    )
+    losers = df[df["positions_gained"] < 0].nsmallest(
+        top_n // 2 + 1, "positions_gained"
+    )
+
     # Combine and sort
-    df_selected = pd.concat([gainers, losers]).sort_values("positions_gained", ascending=True)
+    df_selected = pd.concat([gainers, losers]).sort_values(
+        "positions_gained", ascending=True
+    )
 
     if df_selected.empty:
         # Fallback to original behavior
@@ -453,7 +468,7 @@ def plot_grid_vs_finish(
     plt.xlabel("Positions Gained/Lost", fontsize=14, fontweight="bold")
     plt.ylabel("Driver & Race", fontsize=14, fontweight="bold")
     plt.title(
-        "Position Changes: Grid to Finish (2022 Season)\nTop Gainers vs Biggest Losers",
+        "Position Changes: Grid to Finish (2023 Season)\nTop Gainers vs Biggest Losers",
         fontsize=16,
         fontweight="bold",
         pad=20,
@@ -462,20 +477,22 @@ def plot_grid_vs_finish(
     # Enhanced y-axis labels with more info
     labels = []
     for row in df_selected.itertuples():
-        race_abbrev = row.race_name.replace("Grand Prix", "GP").replace("Saudi Arabian", "Saudi")
+        race_abbrev = row.race_name.replace("Grand Prix", "GP").replace(
+            "Saudi Arabian", "Saudi"
+        )
         label = f"{row.driver_code} ({row.constructor[:12]})\n{race_abbrev[:20]}"
         labels.append(label)
-    
+
     plt.yticks(range(len(df_selected)), labels, fontsize=9)
 
     # Enhanced value labels with grid/finish positions
     for i, (bar, row) in enumerate(zip(bars, df_selected.itertuples())):
         value = row.positions_gained
         label = f"+{int(value)}" if value > 0 else str(int(value))
-        
+
         # Position info
         position_info = f"P{row.grid} → P{row.position}"
-        
+
         # Place label outside the bar
         x_pos = value + (0.3 if value > 0 else -0.3)
         plt.text(
@@ -490,20 +507,29 @@ def plot_grid_vs_finish(
 
     # Add separating line at zero
     plt.axvline(x=0, color="black", linestyle="-", linewidth=2.5, zorder=3)
-    
+
     # Add grid
-    plt.grid(axis="x", alpha=0.3, linestyle='--')
-    
+    plt.grid(axis="x", alpha=0.3, linestyle="--")
+
     # Add legend
     from matplotlib.patches import Patch
+
     legend_elements = [
-        Patch(facecolor='#006400', edgecolor='black', label='Major Gain (>5 positions)'),
-        Patch(facecolor='#90EE90', edgecolor='black', label='Minor Gain (1-5 positions)'),
-        Patch(facecolor='#FFB6C6', edgecolor='black', label='Minor Loss (1-5 positions)'),
-        Patch(facecolor='#8B0000', edgecolor='black', label='Major Loss (>5 positions)'),
+        Patch(
+            facecolor="#006400", edgecolor="black", label="Major Gain (>5 positions)"
+        ),
+        Patch(
+            facecolor="#90EE90", edgecolor="black", label="Minor Gain (1-5 positions)"
+        ),
+        Patch(
+            facecolor="#FFB6C6", edgecolor="black", label="Minor Loss (1-5 positions)"
+        ),
+        Patch(
+            facecolor="#8B0000", edgecolor="black", label="Major Loss (>5 positions)"
+        ),
     ]
-    plt.legend(handles=legend_elements, loc='lower right', fontsize=10, framealpha=0.9)
-    
+    plt.legend(handles=legend_elements, loc="lower right", fontsize=10, framealpha=0.9)
+
     plt.tight_layout()
 
     # Save plot

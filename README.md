@@ -94,7 +94,7 @@ Each run will:
 
 ## Data Collection Strategy
 
-The project collects data from the **2022 and 2023 F1 seasons** (~44 races total).
+The project collects data from the **2023 F1 season** (~22 races total).
 
 Sessions collected:
 - Race sessions (R)
