@@ -7,18 +7,16 @@ import sqlite3
 from pathlib import Path
 from typing import Optional, Tuple
 
-DB_PATH = Path("data/f1_project.db")
+DB_PATH = Path("f1.db")
 
 
 def get_connection() -> sqlite3.Connection:
     """
     Create and return a SQLite database connection with foreign keys enabled.
-    Creates the data directory if it doesn't exist.
 
     Returns:
         sqlite3.Connection: Database connection object
     """
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn

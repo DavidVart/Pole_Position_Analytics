@@ -17,6 +17,7 @@ import seaborn as sns
 # Set up directories
 CSV_DIR = Path("outputs/csv")
 FIG_DIR = Path("outputs/figures")
+CSV_DIR.mkdir(parents=True, exist_ok=True)
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Set seaborn theme for better-looking plots

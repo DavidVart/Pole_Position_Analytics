@@ -1,6 +1,4 @@
-# Data and cache files
-data/
-outputs/
+*.csv
 
 # Python
 __pycache__/
