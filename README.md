@@ -14,41 +14,28 @@ This project demonstrates advanced data engineering and analysis skills by:
 ## Data Sources
 
 1. **Jolpica F1 API** (Ergast-compatible) - Race results, driver info, constructor data
-2. **FastF1 Python Library** - Lap times, telemetry, and weather data
+2. **OpenF1 REST API** - Lap times, telemetry, and weather data
 
 ## Project Structure
 
 ```
 Pole_Position_Analytics/
-├── data/                     # SQLite DB + FastF1 cache (gitignored)
+├── f1.db                     # SQLite database (gitignored)
 ├── outputs/
 │   ├── csv/                 # Calculated data CSVs
 │   └── figures/             # Visualization PNGs
 ├── src/
 │   ├── db_utils.py          # Database setup and helpers
 │   ├── jolpica_api.py       # Jolpica F1 API integration
-│   ├── fastf1_api.py        # FastF1 integration
-│   ├── calculations.py      # SQL queries with JOINs
+│   ├── openf1_api.py        # OpenF1 REST API integration
+│   ├── clean_data.py        # Data cleaning utilities
+│   ├── calculations.py       # SQL queries with JOINs
 │   ├── visualisation.py     # Matplotlib/Seaborn plots
 │   └── main.py              # Main orchestration script
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
-
-## Database Schema
-
-The project uses a normalized SQLite database with the following tables:
-
-- **LoadProgress** - Tracks incremental data loading progress
-- **Drivers** - Normalized driver information
-- **Constructors** - Team/constructor data
-- **Races** - Race metadata (season, round, date, circuit)
-- **Results** - Race results linking drivers, constructors, and races
-- **Sessions** - Session metadata including weather conditions
-- **LapTimes** - Detailed lap telemetry data
-
-All tables use integer foreign keys to avoid duplicate string data across tables.
 
 ## Setup Instructions
 
@@ -67,28 +54,15 @@ pip install -r requirements.txt
 ### 3. Run the Project
 
 ```bash
-python -m src.main
+python src/main.py
 ```
 
-**Important:** Due to the 25-row incremental loading constraint, you need to run the script **multiple times** (5-10 runs) to accumulate 100+ rows per data source.
+**Important:** Due to the 25-row incremental loading constraint, run the script multiple times (5-10 runs) to accumulate 100+ rows per data source. Plots will be generated after each run.
 
-Each run will:
-- Add up to 25 new Results rows from Jolpica API
-- Add up to 25 new LapTimes rows from FastF1
-- Regenerate calculations and visualizations with updated data
-
-## Output Files
-
-### CSV Files (outputs/csv/)
-- `avg_lap_times.csv` - Average lap time per driver per race
-- `grid_vs_finish.csv` - Grid position vs final position analysis
-- `tyre_performance.csv` - Average lap times by tyre compound
-- `temp_lap_corr.csv` - Track temperature vs lap time correlation
-
-### Visualizations (outputs/figures/)
+## Visualizations
 - `avg_lap_times.png` - Bar chart of average lap times by driver
-- `temp_vs_lap_scatter.png` - Scatter plot with regression line
-- `lap_progression.png` - Line chart showing lap time progression
+- `temp_vs_lap_scatter.png` - Scatter plot with regression line showing track temperature vs lap time
+- `grid_vs_finish.png` - Horizontal bar chart showing position changes from grid to finish
 - `tyre_distribution.png` - Pie chart showing total lap distribution by tyre compound
 
 
@@ -100,7 +74,7 @@ Sessions collected:
 - Race sessions (R)
 - Qualifying sessions (Q)
 
-The incremental loading system tracks progress and ensures:
+The incremental loading system tracks progress per data source ('jolpica' and 'openf1') and ensures:
 - No duplicate data
 - Automatic continuation from last checkpoint
 - No manual code changes between runs
@@ -108,5 +82,5 @@ The incremental loading system tracks progress and ensures:
 ## Authors
 
 - David - Jolpica API integration
-- Alberto - FastF1 integration
+- Alberto - OpenF1 API integration
 - Both - Calculations, visualizations, and orchestration
