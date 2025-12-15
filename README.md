@@ -89,7 +89,7 @@ Each run will:
 - `avg_lap_times.png` - Bar chart of average lap times by driver
 - `temp_vs_lap_scatter.png` - Scatter plot with regression line
 - `lap_progression.png` - Line chart showing lap time progression
-- `tyre_performance.png` - Bar chart comparing tyre compounds
+- `tyre_distribution.png` - Pie chart showing total lap distribution by tyre compound
 
 
 ## Data Collection Strategy

@@ -326,20 +326,20 @@ def plot_lap_progression(
 
 
 def plot_tyre_performance(
-    df: pd.DataFrame, output_filename: str = "tyre_performance.png"
+    df: pd.DataFrame, output_filename: str = "tyre_distribution.png"
 ) -> None:
     """
-    Create a bar chart comparing tyre compound performance.
+    Create a pie chart showing the total number of laps done on each tyre compound.
 
     Args:
-        df: DataFrame with tyre performance data
+        df: DataFrame with tyre performance data (must include 'compound' and 'lap_count' columns)
         output_filename: Output filename for the plot
     """
     if df.empty:
         return
 
-    # Sort by lap time
-    df_sorted = df.sort_values("avg_lap_time_sec")
+    # Sort by lap count for better visualization
+    df_sorted = df.sort_values("lap_count", ascending=False)
 
     # Create plot
     plt.figure(figsize=(12, 8))
@@ -355,50 +355,39 @@ def plot_tyre_performance(
 
     colors = [compound_colors.get(c, "#808080") for c in df_sorted["compound"]]
 
-    bars = plt.bar(
-        range(len(df_sorted)),
-        df_sorted["avg_lap_time_sec"],
-        color=colors,
-        edgecolor="black",
-        linewidth=1.5,
+    # Create pie chart with custom labels showing both count and percentage
+    labels = [
+        f"{row.compound}\n({row.lap_count} laps)"
+        for row in df_sorted.itertuples()
+    ]
+
+    wedges, texts, autotexts = plt.pie(
+        df_sorted["lap_count"],
+        labels=labels,
+        colors=colors,
+        autopct="%1.1f%%",
+        startangle=90,
+        textprops={"fontsize": 11, "fontweight": "bold"},
+        wedgeprops={"edgecolor": "black", "linewidth": 1.5},
     )
+
+    # Enhance percentage text appearance
+    for autotext in autotexts:
+        autotext.set_color("black")
+        autotext.set_fontsize(10)
+        autotext.set_fontweight("bold")
 
     # Customize plot
-    plt.xlabel("Tyre Compound", fontsize=12, fontweight="bold")
-    plt.ylabel("Average Lap Time (seconds)", fontsize=12, fontweight="bold")
     plt.title(
-        "Tyre Compound Performance Comparison", fontsize=14, fontweight="bold", pad=20
+        "Total Laps by Tyre Compound (All Races)",
+        fontsize=16,
+        fontweight="bold",
+        pad=20,
     )
 
-    # Set x-axis labels
-    plt.xticks(range(len(df_sorted)), df_sorted["compound"], rotation=45, ha="right")
+    # Ensure equal aspect ratio for circular pie chart
+    plt.axis("equal")
 
-    # Add value labels and lap count
-    for i, (bar, row) in enumerate(zip(bars, df_sorted.itertuples())):
-        # Lap time label
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.1,
-            f"{row.avg_lap_time_sec:.2f}s",
-            ha="center",
-            va="bottom",
-            fontsize=9,
-            fontweight="bold",
-        )
-
-        # Lap count label
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() / 2,
-            f"{row.lap_count} laps",
-            ha="center",
-            va="center",
-            fontsize=8,
-            color="black",
-            bbox=dict(boxstyle="round", facecolor="white", alpha=0.7),
-        )
-
-    plt.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 
     # Save plot
