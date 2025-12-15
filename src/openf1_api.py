@@ -227,8 +227,6 @@ def get_compound_for_lap(stints: List[Dict], lap_number: int) -> Optional[str]:
 def is_fresh_tyre_for_lap(stints: List[Dict], lap_number: int) -> int:
     """
     Determine if the tyre was fresh for the entire stint containing this lap.
-    Matches FastF1 behavior where FreshTyre is True for all laps in a stint
-    that started with new tyres.
 
     Args:
         stints: List of stint dictionaries for a driver

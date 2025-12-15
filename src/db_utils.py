@@ -35,10 +35,10 @@ def create_tables(conn: sqlite3.Connection) -> None:
     # Meta table for tracking progress to enforce 25-row limit
     cur.execute("""
         CREATE TABLE IF NOT EXISTS LoadProgress (
-            source TEXT PRIMARY KEY,    -- 'jolpica' or 'fastf1'
+            source TEXT PRIMARY KEY,    
             last_season INTEGER,
             last_round INTEGER,
-            last_event TEXT             -- For FastF1 event names
+            last_event TEXT             
         );
     """)
 
@@ -336,7 +336,7 @@ def get_progress(
 
     Args:
         conn: Database connection
-        source: Data source name ('jolpica' or 'fastf1')
+        source: Data source name
 
     Returns:
         Tuple of (last_season, last_round, last_event) or None if no progress exists
@@ -362,10 +362,10 @@ def update_progress(
 
     Args:
         conn: Database connection
-        source: Data source name ('jolpica' or 'fastf1')
+        source: Data source name
         season: Last processed season
         round_num: Last processed round
-        event: Last processed event name (for FastF1)
+        event: Last processed event name
     """
     cur = conn.cursor()
     cur.execute(
