@@ -336,9 +336,16 @@ def store_openmeteo_data(conn: sqlite3.Connection) -> int:
                     """
                     INSERT OR IGNORE INTO Weather
                     (race_id, timestamp, temperature_c, wind_speed, precipitation_mm, source)
-                    VALUES (?, ?, ?, ?, ?, 'open-meteo')
+                    VALUES (?, ?, ?, ?, ?, ?)
                     """,
-                    (race_id, timestamp, temperature_c, wind_speed, precipitation_mm),
+                    (
+                        race_id,
+                        timestamp,
+                        temperature_c,
+                        wind_speed,
+                        precipitation_mm,
+                        "open-meteo",
+                    ),
                 )
 
                 if cur.rowcount > 0:
