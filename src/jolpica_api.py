@@ -53,14 +53,16 @@ def fetch_race_list(seasons: List[int]) -> List[Dict]:
             races = data.get("MRData", {}).get("RaceTable", {}).get("Races", [])
 
             for race in races:
+                circuit = race.get("Circuit", {})
+                location = circuit.get("Location", {})
                 race_info = {
                     "season": clean_integer(race.get("season")),
                     "round": clean_integer(race.get("round")),
                     "race_name": clean_string(race.get("raceName")),
                     "date": race.get("date"),  # Will be cleaned later when inserting
-                    "circuit_name": clean_string(
-                        race.get("Circuit", {}).get("circuitName")
-                    ),
+                    "circuit_name": clean_string(circuit.get("circuitName")),
+                    "circuit_latitude": clean_float(location.get("lat")),
+                    "circuit_longitude": clean_float(location.get("long")),
                 }
                 all_races.append(race_info)
 
@@ -175,7 +177,12 @@ def store_jolpica_data(conn: sqlite3.Connection) -> int:
 
         # Clean and normalize data before insertion
         cleaned_date = clean_date(race["date"])
-        circuit_id = get_or_create_circuit(conn, race["circuit_name"])
+        circuit_id = get_or_create_circuit(
+            conn,
+            race["circuit_name"],
+            latitude=race.get("circuit_latitude"),
+            longitude=race.get("circuit_longitude"),
+        )
 
         # Get or create race record
         race_id = get_or_create_race(

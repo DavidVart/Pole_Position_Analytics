@@ -182,7 +182,7 @@ def plot_temp_vs_lap_scatter(
     output_filename: str = "temp_vs_lap_scatter.png",
 ) -> None:
     """
-    Create a scatter plot with regression line showing track temp vs lap time.
+    Create a scatter plot with regression line showing air temperature (Open-Meteo) vs lap time.
 
     Args:
         df: DataFrame with temperature and lap time data
@@ -196,23 +196,29 @@ def plot_temp_vs_lap_scatter(
     if "avg_lap_time_sec" not in df.columns and "avg_lap_time_ms" in df.columns:
         df["avg_lap_time_sec"] = df["avg_lap_time_ms"] / 1000
 
+    # Check if we have the Open-Meteo temperature column
+    temp_column = "avg_temperature_c" if "avg_temperature_c" in df.columns else "track_temp"
+
     # Create plot
     plt.figure(figsize=(12, 8))
 
     # Create scatter plot with regression line
     sns.regplot(
         data=df,
-        x="track_temp",
+        x=temp_column,
         y="avg_lap_time_sec",
         scatter_kws={"alpha": 0.6, "s": 100, "edgecolors": "black", "linewidths": 0.5},
         line_kws={"color": "red", "linewidth": 2},
     )
 
     # Customize plot
-    plt.xlabel("Track Temperature (°C)", fontsize=12, fontweight="bold")
+    x_label = "Air Temperature (°C) - Open-Meteo" if temp_column == "avg_temperature_c" else "Track Temperature (°C)"
+    plt.xlabel(x_label, fontsize=12, fontweight="bold")
     plt.ylabel("Average Lap Time (seconds)", fontsize=12, fontweight="bold")
+    
+    title_source = "Open-Meteo" if temp_column == "avg_temperature_c" else "Track"
     plt.title(
-        f"Track Temperature vs Lap Time\nCorrelation: {correlation:.4f}",
+        f"{title_source} Temperature vs Lap Time\nCorrelation: {correlation:.4f}",
         fontsize=14,
         fontweight="bold",
         pad=20,
@@ -222,7 +228,8 @@ def plot_temp_vs_lap_scatter(
     plt.grid(True, alpha=0.3)
 
     # Add text box with correlation info
-    textstr = f"Correlation Coefficient: {correlation:.4f}\nN = {len(df)} sessions"
+    n_label = "races" if temp_column == "avg_temperature_c" else "sessions"
+    textstr = f"Correlation Coefficient: {correlation:.4f}\nN = {len(df)} {n_label}"
     props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
     plt.text(
         0.05,

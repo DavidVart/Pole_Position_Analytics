@@ -12,6 +12,7 @@ from calculations import run_all_calculations
 from db_utils import create_tables, get_connection
 from jolpica_api import store_jolpica_data
 from openf1_api import store_openf1_data
+from openmeteo_api import store_openmeteo_data
 from visualisation import generate_all_visualizations
 
 
@@ -20,7 +21,15 @@ def print_database_stats(conn) -> None:
     cur = conn.cursor()
 
     # Count rows in each table
-    tables = ["Drivers", "Constructors", "Races", "Results", "Sessions", "LapTimes"]
+    tables = [
+        "Drivers",
+        "Constructors",
+        "Races",
+        "Results",
+        "Sessions",
+        "LapTimes",
+        "Weather",
+    ]
 
     print("\nDatabase Statistics:")
 
@@ -89,6 +98,13 @@ def main():
         print(f"Error gathering OpenF1 data: {e}")
         openf1_count = 0
 
+    # Gather data from Open-Meteo API (weather observations)
+    try:
+        openmeteo_count = store_openmeteo_data(conn)
+    except Exception as e:
+        print(f"Error gathering Open-Meteo data: {e}")
+        openmeteo_count = 0
+
     print_database_stats(conn)
 
     req = check_data_requirements(conn)
@@ -111,10 +127,17 @@ def main():
         except Exception as e:
             print(f"Error during visualization: {e}")
 
+    # Get weather observations count
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM Weather")
+    weather_count = cur.fetchone()[0]
+
     print("\nExecution Summary:")
-    print(f"  New data: {jolpica_count} Results, {openf1_count} LapTimes")
     print(
-        f"  Total: {req['results_count']} Results, {req['laps_count']} LapTimes, {req['total_races']} Races"
+        f"  New data: {jolpica_count} Results, {openf1_count} LapTimes, {openmeteo_count} Weather Observations"
+    )
+    print(
+        f"  Total: {req['results_count']} Results, {req['laps_count']} LapTimes, {weather_count} Weather Observations, {req['total_races']} Races"
     )
 
     conn.close()

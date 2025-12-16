@@ -7,7 +7,7 @@ import sqlite3
 from pathlib import Path
 from typing import Optional, Tuple
 
-DB_PATH = Path("f1.db")
+DB_PATH = Path("formula1.db")
 
 
 def get_connection() -> sqlite3.Connection:
@@ -53,9 +53,22 @@ def create_tables(conn: sqlite3.Connection) -> None:
     cur.execute("""
         CREATE TABLE IF NOT EXISTS Circuits (
             circuit_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            circuit_name TEXT UNIQUE NOT NULL
+            circuit_name TEXT UNIQUE NOT NULL,
+            latitude REAL,
+            longitude REAL
         );
     """)
+
+    # Add latitude/longitude columns if they don't exist (for existing databases)
+    try:
+        cur.execute("ALTER TABLE Circuits ADD COLUMN latitude REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    try:
+        cur.execute("ALTER TABLE Circuits ADD COLUMN longitude REAL")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS Statuses (
@@ -176,6 +189,21 @@ def create_tables(conn: sqlite3.Connection) -> None:
             FOREIGN KEY (session_id) REFERENCES Sessions(session_id),
             FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id),
             FOREIGN KEY (compound_id) REFERENCES Compounds(compound_id)
+        );
+    """)
+
+    # Weather observations table for Open-Meteo data
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS Weather (
+            weather_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            race_id INTEGER NOT NULL,
+            timestamp TEXT NOT NULL,
+            temperature_c REAL,
+            wind_speed REAL,
+            precipitation_mm REAL,
+            source TEXT DEFAULT 'open-meteo',
+            UNIQUE (race_id, timestamp),
+            FOREIGN KEY (race_id) REFERENCES Races(race_id)
         );
     """)
 
@@ -434,7 +462,10 @@ def get_or_create_nationality(
 
 
 def get_or_create_circuit(
-    conn: sqlite3.Connection, circuit_name: Optional[str]
+    conn: sqlite3.Connection,
+    circuit_name: Optional[str],
+    latitude: Optional[float] = None,
+    longitude: Optional[float] = None,
 ) -> Optional[int]:
     """
     Get existing circuit_id or create new circuit record.
@@ -442,6 +473,8 @@ def get_or_create_circuit(
     Args:
         conn: Database connection
         circuit_name: Circuit name
+        latitude: Circuit latitude (optional)
+        longitude: Circuit longitude (optional)
 
     Returns:
         int: circuit_id or None if circuit_name is None/empty
@@ -459,10 +492,21 @@ def get_or_create_circuit(
     row = cur.fetchone()
 
     if row:
-        return row[0]
+        circuit_id = row[0]
+        # Update coordinates if provided and not already set
+        if latitude is not None and longitude is not None:
+            cur.execute(
+                "UPDATE Circuits SET latitude = ?, longitude = ? WHERE circuit_id = ?",
+                (latitude, longitude, circuit_id),
+            )
+            conn.commit()
+        return circuit_id
 
     # Create new circuit
-    cur.execute("INSERT INTO Circuits (circuit_name) VALUES (?)", (circuit_name,))
+    cur.execute(
+        "INSERT INTO Circuits (circuit_name, latitude, longitude) VALUES (?, ?, ?)",
+        (circuit_name, latitude, longitude),
+    )
 
     conn.commit()
     return cur.lastrowid if cur.lastrowid is not None else None
@@ -600,3 +644,58 @@ def get_or_create_race_name(
 
     conn.commit()
     return cur.lastrowid if cur.lastrowid is not None else None
+
+
+def update_circuit_coordinates(
+    conn: sqlite3.Connection,
+    circuit_name: str,
+    latitude: float,
+    longitude: float,
+) -> bool:
+    """
+    Update circuit coordinates for an existing circuit.
+
+    Args:
+        conn: Database connection
+        circuit_name: Circuit name
+        latitude: Circuit latitude
+        longitude: Circuit longitude
+
+    Returns:
+        bool: True if update was successful, False if circuit not found
+    """
+    cur = conn.cursor()
+    circuit_name = circuit_name.strip()
+
+    cur.execute(
+        "UPDATE Circuits SET latitude = ?, longitude = ? WHERE circuit_name = ?",
+        (latitude, longitude, circuit_name),
+    )
+
+    conn.commit()
+    return cur.rowcount > 0
+
+
+def get_circuit_coordinates(
+    conn: sqlite3.Connection, circuit_id: int
+) -> Optional[Tuple[float, float]]:
+    """
+    Get circuit coordinates by circuit_id.
+
+    Args:
+        conn: Database connection
+        circuit_id: Circuit ID
+
+    Returns:
+        Tuple of (latitude, longitude) or None if not found or not set
+    """
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT latitude, longitude FROM Circuits WHERE circuit_id = ?", (circuit_id,)
+    )
+    row = cur.fetchone()
+
+    if row and row[0] is not None and row[1] is not None:
+        return (row[0], row[1])
+
+    return None

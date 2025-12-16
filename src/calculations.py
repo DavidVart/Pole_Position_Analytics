@@ -160,8 +160,8 @@ def compute_tyre_performance(conn: sqlite3.Connection) -> pd.DataFrame:
 
 def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFrame]:
     """
-    Calculate correlation between track temperature and average lap time.
-    Uses JOIN to combine Sessions and LapTimes data.
+    Calculate correlation between air temperature (Open-Meteo) and average lap time.
+    Uses JOIN to combine Weather, Races, Sessions, and LapTimes data.
 
     Args:
         conn: Database connection
@@ -171,23 +171,24 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
     """
     query = """
         SELECT
-            S.session_id,
+            R.race_id,
             R.season,
             R.round,
             RN.race_name,
-            ST.session_type_code AS session_type,
-            S.track_temp,
-            S.humidity,
-            S.wind_speed,
+            AVG(WO.temperature_c) AS avg_temperature_c,
             AVG(L.lap_time_ms) AS avg_lap_time_ms,
+            COUNT(DISTINCT WO.weather_id) AS weather_obs_count,
             COUNT(*) AS lap_count
-        FROM Sessions S
+        FROM Weather WO
+        JOIN Races R ON WO.race_id = R.race_id
+        LEFT JOIN RaceNames RN ON R.race_name_id = RN.race_name_id
+        JOIN Sessions S ON R.race_id = S.race_id
         JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN LapTimes L ON S.session_id = L.session_id
-        JOIN Races R ON S.race_id = R.race_id
-        LEFT JOIN RaceNames RN ON R.race_name_id = RN.race_name_id
-        WHERE S.track_temp IS NOT NULL AND L.lap_time_ms IS NOT NULL
-        GROUP BY S.session_id
+        WHERE ST.session_type_code = 'R'
+          AND WO.temperature_c IS NOT NULL
+          AND L.lap_time_ms IS NOT NULL
+        GROUP BY R.race_id
         ORDER BY R.season, R.round
     """
 
@@ -200,8 +201,8 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
         df["avg_lap_time_sec"] = df["avg_lap_time_ms"] / 1000
 
         # Calculate correlation
-        correlation = df["track_temp"].corr(df["avg_lap_time_ms"])
-        write_to_csv(df, "temp_lap_corr.csv")
+        correlation = df["avg_temperature_c"].corr(df["avg_lap_time_ms"])
+        write_to_csv(df, "temp_vs_lap_openmeteo.csv")
 
     return correlation, df
 
