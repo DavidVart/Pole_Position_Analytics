@@ -185,7 +185,7 @@ def correlate_temp_lap_time(conn: sqlite3.Connection) -> Tuple[float, pd.DataFra
         JOIN Sessions S ON R.race_id = S.race_id
         JOIN SessionTypes ST ON S.session_type_id = ST.session_type_id
         JOIN LapTimes L ON S.session_id = L.session_id
-        WHERE ST.session_type_code = 'R'
+        WHERE ST.session_type_code IN ('R', 'Q')
           AND WO.temperature_c IS NOT NULL
           AND L.lap_time_ms IS NOT NULL
         GROUP BY R.race_id

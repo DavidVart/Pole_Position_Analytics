@@ -1,0 +1,6 @@
+race_id,season,round,race_name,avg_temperature_c,avg_lap_time_ms,weather_obs_count,lap_count,avg_lap_time_sec
+1,2023,1,Bahrain Grand Prix,20.203999999999876,105373.12,25,625,105.37312
+2,2023,2,Saudi Arabian Grand Prix,22.931999999999814,110451.12,25,625,110.45111999999999
+3,2023,3,Australian Grand Prix,14.880000000000084,146115.28,25,625,146.11528
+4,2023,4,Azerbaijan Grand Prix,16.61200000000004,114047.68,25,625,114.04768
+5,2023,5,Miami Grand Prix,23.251999999999974,112222.68,25,625,112.22268
