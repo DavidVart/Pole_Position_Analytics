@@ -1,0 +1,3 @@
+compound,avg_lap_time_ms,fastest_lap_ms,slowest_lap_ms,lap_count,driver_count,avg_lap_time_sec,fastest_lap_sec,slowest_lap_sec
+MEDIUM,111931.0,92408,131454,2,2,111.931,92.408,131.454
+SOFT,117734.83739837399,77609,608933,123,9,117.73483739837398,77.609,608.933

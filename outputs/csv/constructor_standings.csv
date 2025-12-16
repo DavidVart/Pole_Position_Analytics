@@ -1,0 +1,11 @@
+constructor,nationality,races,total_points,wins,podiums
+Red Bull,Austrian,10,365.0,10,15
+Mercedes,German,9,182.0,0,5
+Aston Martin,British,9,154.0,0,6
+Ferrari,Italian,7,111.0,0,2
+McLaren,British,6,54.0,0,1
+Alpine F1 Team,French,6,29.0,0,1
+Alfa Romeo,Swiss,5,8.0,0,0
+Haas F1 Team,American,5,7.0,0,0
+AlphaTauri,Italian,5,1.0,0,0
+Williams,British,5,1.0,0,0

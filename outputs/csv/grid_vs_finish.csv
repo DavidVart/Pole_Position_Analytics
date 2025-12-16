@@ -1,0 +1,126 @@
+season,round,race_name,driver_code,forename,surname,constructor,grid,position,positions_gained,points,status
+2023,1,Bahrain Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,25.0,Finished
+2023,1,Bahrain Grand Prix,PER,Sergio,Pérez,Red Bull,2,2,0,18.0,Finished
+2023,1,Bahrain Grand Prix,ALO,Fernando,Alonso,Aston Martin,5,3,2,15.0,Finished
+2023,1,Bahrain Grand Prix,SAI,Carlos,Sainz,Ferrari,4,4,0,12.0,Finished
+2023,1,Bahrain Grand Prix,HAM,Lewis,Hamilton,Mercedes,7,5,2,10.0,Finished
+2023,1,Bahrain Grand Prix,STR,Lance,Stroll,Aston Martin,8,6,2,8.0,Finished
+2023,1,Bahrain Grand Prix,RUS,George,Russell,Mercedes,6,7,-1,6.0,Finished
+2023,1,Bahrain Grand Prix,BOT,Valtteri,Bottas,Alfa Romeo,12,8,4,4.0,Finished
+2023,1,Bahrain Grand Prix,GAS,Pierre,Gasly,Alpine F1 Team,20,9,11,2.0,Finished
+2023,1,Bahrain Grand Prix,ALB,Alexander,Albon,Williams,15,10,5,1.0,Finished
+2023,1,Bahrain Grand Prix,TSU,Yuki,Tsunoda,AlphaTauri,14,11,3,0.0,Finished
+2023,1,Bahrain Grand Prix,SAR,Logan,Sargeant,Williams,16,12,4,0.0,Lapped
+2023,1,Bahrain Grand Prix,MAG,Kevin,Magnussen,Haas F1 Team,17,13,4,0.0,Lapped
+2023,1,Bahrain Grand Prix,DEV,Nyck,de Vries,AlphaTauri,19,14,5,0.0,Lapped
+2023,1,Bahrain Grand Prix,HUL,Nico,Hülkenberg,Haas F1 Team,10,15,-5,0.0,Lapped
+2023,1,Bahrain Grand Prix,ZHO,Guanyu,Zhou,Alfa Romeo,13,16,-3,0.0,Lapped
+2023,1,Bahrain Grand Prix,NOR,Lando,Norris,McLaren,11,17,-6,0.0,Lapped
+2023,1,Bahrain Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,9,18,-9,0.0,Retired
+2023,1,Bahrain Grand Prix,LEC,Charles,Leclerc,Ferrari,3,19,-16,0.0,Retired
+2023,1,Bahrain Grand Prix,PIA,Oscar,Piastri,McLaren,18,20,-2,0.0,Retired
+2023,2,Saudi Arabian Grand Prix,PER,Sergio,Pérez,Red Bull,1,1,0,25.0,Finished
+2023,2,Saudi Arabian Grand Prix,VER,Max,Verstappen,Red Bull,15,2,13,19.0,Finished
+2023,2,Saudi Arabian Grand Prix,ALO,Fernando,Alonso,Aston Martin,2,3,-1,15.0,Finished
+2023,2,Saudi Arabian Grand Prix,RUS,George,Russell,Mercedes,3,4,-1,12.0,Finished
+2023,2,Saudi Arabian Grand Prix,HAM,Lewis,Hamilton,Mercedes,7,5,2,10.0,Finished
+2023,3,Australian Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,25.0,Finished
+2023,3,Australian Grand Prix,HAM,Lewis,Hamilton,Mercedes,3,2,1,18.0,Finished
+2023,3,Australian Grand Prix,ALO,Fernando,Alonso,Aston Martin,4,3,1,15.0,Finished
+2023,3,Australian Grand Prix,STR,Lance,Stroll,Aston Martin,6,4,2,12.0,Finished
+2023,3,Australian Grand Prix,PER,Sergio,Pérez,Red Bull,20,5,15,11.0,Finished
+2023,3,Australian Grand Prix,NOR,Lando,Norris,McLaren,13,6,7,8.0,Finished
+2023,3,Australian Grand Prix,HUL,Nico,Hülkenberg,Haas F1 Team,10,7,3,6.0,Finished
+2023,3,Australian Grand Prix,PIA,Oscar,Piastri,McLaren,16,8,8,4.0,Finished
+2023,3,Australian Grand Prix,ZHO,Guanyu,Zhou,Alfa Romeo,17,9,8,2.0,Finished
+2023,3,Australian Grand Prix,TSU,Yuki,Tsunoda,AlphaTauri,12,10,2,1.0,Finished
+2023,3,Australian Grand Prix,BOT,Valtteri,Bottas,Alfa Romeo,19,11,8,0.0,Finished
+2023,3,Australian Grand Prix,SAI,Carlos,Sainz,Ferrari,5,12,-7,0.0,Finished
+2023,3,Australian Grand Prix,GAS,Pierre,Gasly,Alpine F1 Team,9,13,-4,0.0,Retired
+2023,3,Australian Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,11,14,-3,0.0,Retired
+2023,3,Australian Grand Prix,DEV,Nyck,de Vries,AlphaTauri,15,15,0,0.0,Retired
+2023,3,Australian Grand Prix,SAR,Logan,Sargeant,Williams,18,16,2,0.0,Retired
+2023,3,Australian Grand Prix,MAG,Kevin,Magnussen,Haas F1 Team,14,17,-3,0.0,Retired
+2023,3,Australian Grand Prix,RUS,George,Russell,Mercedes,2,18,-16,0.0,Retired
+2023,3,Australian Grand Prix,ALB,Alexander,Albon,Williams,8,19,-11,0.0,Retired
+2023,3,Australian Grand Prix,LEC,Charles,Leclerc,Ferrari,7,20,-13,0.0,Retired
+2023,4,Azerbaijan Grand Prix,PER,Sergio,Pérez,Red Bull,3,1,2,25.0,Finished
+2023,4,Azerbaijan Grand Prix,VER,Max,Verstappen,Red Bull,2,2,0,18.0,Finished
+2023,4,Azerbaijan Grand Prix,LEC,Charles,Leclerc,Ferrari,1,3,-2,15.0,Finished
+2023,4,Azerbaijan Grand Prix,ALO,Fernando,Alonso,Aston Martin,6,4,2,12.0,Finished
+2023,4,Azerbaijan Grand Prix,SAI,Carlos,Sainz,Ferrari,4,5,-1,10.0,Finished
+2023,5,Miami Grand Prix,VER,Max,Verstappen,Red Bull,9,1,8,26.0,Finished
+2023,5,Miami Grand Prix,PER,Sergio,Pérez,Red Bull,1,2,-1,18.0,Finished
+2023,5,Miami Grand Prix,ALO,Fernando,Alonso,Aston Martin,2,3,-1,15.0,Finished
+2023,5,Miami Grand Prix,RUS,George,Russell,Mercedes,6,4,2,12.0,Finished
+2023,5,Miami Grand Prix,SAI,Carlos,Sainz,Ferrari,3,5,-2,10.0,Finished
+2023,5,Miami Grand Prix,HAM,Lewis,Hamilton,Mercedes,13,6,7,8.0,Finished
+2023,5,Miami Grand Prix,LEC,Charles,Leclerc,Ferrari,7,7,0,6.0,Finished
+2023,5,Miami Grand Prix,GAS,Pierre,Gasly,Alpine F1 Team,5,8,-3,4.0,Finished
+2023,5,Miami Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,8,9,-1,2.0,Finished
+2023,5,Miami Grand Prix,MAG,Kevin,Magnussen,Haas F1 Team,4,10,-6,1.0,Finished
+2023,5,Miami Grand Prix,TSU,Yuki,Tsunoda,AlphaTauri,17,11,6,0.0,Finished
+2023,5,Miami Grand Prix,STR,Lance,Stroll,Aston Martin,18,12,6,0.0,Finished
+2023,5,Miami Grand Prix,BOT,Valtteri,Bottas,Alfa Romeo,10,13,-3,0.0,Finished
+2023,5,Miami Grand Prix,ALB,Alexander,Albon,Williams,11,14,-3,0.0,Finished
+2023,5,Miami Grand Prix,HUL,Nico,Hülkenberg,Haas F1 Team,12,15,-3,0.0,Finished
+2023,5,Miami Grand Prix,ZHO,Guanyu,Zhou,Alfa Romeo,14,16,-2,0.0,Finished
+2023,5,Miami Grand Prix,NOR,Lando,Norris,McLaren,16,17,-1,0.0,Finished
+2023,5,Miami Grand Prix,DEV,Nyck,de Vries,AlphaTauri,15,18,-3,0.0,Finished
+2023,5,Miami Grand Prix,PIA,Oscar,Piastri,McLaren,19,19,0,0.0,Lapped
+2023,5,Miami Grand Prix,SAR,Logan,Sargeant,Williams,20,20,0,0.0,Lapped
+2023,6,Monaco Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,25.0,Finished
+2023,6,Monaco Grand Prix,ALO,Fernando,Alonso,Aston Martin,2,2,0,18.0,Finished
+2023,6,Monaco Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,3,3,0,15.0,Finished
+2023,6,Monaco Grand Prix,HAM,Lewis,Hamilton,Mercedes,5,4,1,13.0,Finished
+2023,6,Monaco Grand Prix,RUS,George,Russell,Mercedes,8,5,3,10.0,Finished
+2023,7,Spanish Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,26.0,Finished
+2023,7,Spanish Grand Prix,HAM,Lewis,Hamilton,Mercedes,4,2,2,18.0,Finished
+2023,7,Spanish Grand Prix,RUS,George,Russell,Mercedes,12,3,9,15.0,Finished
+2023,7,Spanish Grand Prix,PER,Sergio,Pérez,Red Bull,11,4,7,12.0,Finished
+2023,7,Spanish Grand Prix,SAI,Carlos,Sainz,Ferrari,2,5,-3,10.0,Finished
+2023,7,Spanish Grand Prix,STR,Lance,Stroll,Aston Martin,5,6,-1,8.0,Finished
+2023,7,Spanish Grand Prix,ALO,Fernando,Alonso,Aston Martin,8,7,1,6.0,Finished
+2023,7,Spanish Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,6,8,-2,4.0,Finished
+2023,7,Spanish Grand Prix,ZHO,Guanyu,Zhou,Alfa Romeo,13,9,4,2.0,Finished
+2023,7,Spanish Grand Prix,GAS,Pierre,Gasly,Alpine F1 Team,10,10,0,1.0,Finished
+2023,7,Spanish Grand Prix,LEC,Charles,Leclerc,Ferrari,19,11,8,0.0,Finished
+2023,7,Spanish Grand Prix,TSU,Yuki,Tsunoda,AlphaTauri,15,12,3,0.0,Finished
+2023,7,Spanish Grand Prix,PIA,Oscar,Piastri,McLaren,9,13,-4,0.0,Lapped
+2023,7,Spanish Grand Prix,DEV,Nyck,de Vries,AlphaTauri,14,14,0,0.0,Lapped
+2023,7,Spanish Grand Prix,HUL,Nico,Hülkenberg,Haas F1 Team,7,15,-8,0.0,Lapped
+2023,7,Spanish Grand Prix,ALB,Alexander,Albon,Williams,18,16,2,0.0,Lapped
+2023,7,Spanish Grand Prix,NOR,Lando,Norris,McLaren,3,17,-14,0.0,Lapped
+2023,7,Spanish Grand Prix,MAG,Kevin,Magnussen,Haas F1 Team,17,18,-1,0.0,Lapped
+2023,7,Spanish Grand Prix,BOT,Valtteri,Bottas,Alfa Romeo,16,19,-3,0.0,Lapped
+2023,7,Spanish Grand Prix,SAR,Logan,Sargeant,Williams,20,20,0,0.0,Lapped
+2023,8,Canadian Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,25.0,Finished
+2023,8,Canadian Grand Prix,ALO,Fernando,Alonso,Aston Martin,2,2,0,18.0,Finished
+2023,8,Canadian Grand Prix,HAM,Lewis,Hamilton,Mercedes,3,3,0,15.0,Finished
+2023,8,Canadian Grand Prix,LEC,Charles,Leclerc,Ferrari,10,4,6,12.0,Finished
+2023,8,Canadian Grand Prix,SAI,Carlos,Sainz,Ferrari,11,5,6,10.0,Finished
+2023,9,Austrian Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,26.0,Finished
+2023,9,Austrian Grand Prix,LEC,Charles,Leclerc,Ferrari,2,2,0,18.0,Finished
+2023,9,Austrian Grand Prix,PER,Sergio,Pérez,Red Bull,15,3,12,15.0,Finished
+2023,9,Austrian Grand Prix,NOR,Lando,Norris,McLaren,4,4,0,12.0,Finished
+2023,9,Austrian Grand Prix,ALO,Fernando,Alonso,Aston Martin,7,5,2,10.0,Finished
+2023,9,Austrian Grand Prix,SAI,Carlos,Sainz,Ferrari,3,6,-3,8.0,Finished
+2023,9,Austrian Grand Prix,RUS,George,Russell,Mercedes,11,7,4,6.0,Finished
+2023,9,Austrian Grand Prix,HAM,Lewis,Hamilton,Mercedes,5,8,-3,4.0,Finished
+2023,9,Austrian Grand Prix,STR,Lance,Stroll,Aston Martin,6,9,-3,2.0,Finished
+2023,9,Austrian Grand Prix,GAS,Pierre,Gasly,Alpine F1 Team,9,10,-1,1.0,Finished
+2023,9,Austrian Grand Prix,ALB,Alexander,Albon,Williams,10,11,-1,0.0,Finished
+2023,9,Austrian Grand Prix,ZHO,Guanyu,Zhou,Alfa Romeo,17,12,5,0.0,Lapped
+2023,9,Austrian Grand Prix,SAR,Logan,Sargeant,Williams,18,13,5,0.0,Lapped
+2023,9,Austrian Grand Prix,OCO,Esteban,Ocon,Alpine F1 Team,12,14,-2,0.0,Lapped
+2023,9,Austrian Grand Prix,BOT,Valtteri,Bottas,Alfa Romeo,14,15,-1,0.0,Lapped
+2023,9,Austrian Grand Prix,PIA,Oscar,Piastri,McLaren,13,16,-3,0.0,Lapped
+2023,9,Austrian Grand Prix,DEV,Nyck,de Vries,AlphaTauri,20,17,3,0.0,Lapped
+2023,9,Austrian Grand Prix,MAG,Kevin,Magnussen,Haas F1 Team,19,18,1,0.0,Lapped
+2023,9,Austrian Grand Prix,TSU,Yuki,Tsunoda,AlphaTauri,16,19,-3,0.0,Lapped
+2023,9,Austrian Grand Prix,HUL,Nico,Hülkenberg,Haas F1 Team,8,20,-12,0.0,Retired
+2023,10,British Grand Prix,VER,Max,Verstappen,Red Bull,1,1,0,26.0,Finished
+2023,10,British Grand Prix,NOR,Lando,Norris,McLaren,2,2,0,18.0,Finished
+2023,10,British Grand Prix,HAM,Lewis,Hamilton,Mercedes,7,3,4,15.0,Finished
+2023,10,British Grand Prix,PIA,Oscar,Piastri,McLaren,3,4,-1,12.0,Finished
+2023,10,British Grand Prix,RUS,George,Russell,Mercedes,6,5,1,10.0,Finished
